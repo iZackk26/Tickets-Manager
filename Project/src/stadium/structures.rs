@@ -29,5 +29,4 @@ struct Seat {
 
 pub fn a() {
     println!("this is the structures file.");
-    data::b();
 }
