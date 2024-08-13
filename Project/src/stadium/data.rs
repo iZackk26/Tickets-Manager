@@ -1,47 +1,45 @@
 use std::collections::HashMap;
-use crate::stadium::structures::{Seat, Status};
+use crate::stadium::structures::{Category, Row, Seat, Status};
 
-pub fn b() {
-    println!("this is the data file.")
-}
+pub fn generate_data() -> Category  {
 
-fn define_data() {
-    let seat_1 = Seat {
-        number: 1,
-        visibility: 0.1,
-        status: Status::Available
-    };
-        let seat_1 = Seat {
-        number: 1,
-        visibility: 0.1,
-        status: Status::Available
-    };
-        let seat_1 = Seat {
-        number: 1,
-        visibility: 0.1,
-        status: Status::Available
-    };    let seat_1 = Seat {
-        number: 1,
-        visibility: 0.1,
-        status: Status::Available
-    };
-
-}
-
-fn generate_data() {
-    let mut zones = HashMap::new();
     let zone_names = vec!["Norte", "Sur", "Este", "Oeste"];
+    let mut category_a : Category = Category::default();
     for zone in zone_names.iter() {
-        let mut categories = HashMap::new();
+        //let mut categories = HashMap::new();
 
         // Category A
         // 5 Filas
         // (n \cdot 20) / 100
         let mut rows_a = HashMap::new();
+
+        let row_1 = Row {
+            seats: create_seats(1.00 * 25.00 / 100.00)
+        };
+        let row_2 = Row {
+            seats: create_seats(2.00 * 25.00 / 100.00)
+        };
+
+        let row_3 = Row {
+            seats: create_seats(3.00 * 25.00 / 100.00)
+        };
+
+        let row_4 = Row {
+            seats: create_seats(4.00 * 25.00 / 100.00)
+        };
+
+
+        rows_a.insert('W', row_1);
+        rows_a.insert('X', row_2);
+        rows_a.insert('Y', row_3);
+        rows_a.insert('Z', row_4);
+
+        category_a.rows = rows_a;
     }
+    return category_a
 }
 
-fn create_row(row_visibility: f32) {
+pub fn create_seats(row_visibility: f32) -> HashMap<u8, Seat> {
     // % de visibilidad
     // 5 filas 5 asientos
 
@@ -59,7 +57,6 @@ fn create_row(row_visibility: f32) {
                 visibility = 1.0;
             }
         }
-
         seats.insert(
             seat_number,
             Seat {
@@ -69,4 +66,5 @@ fn create_row(row_visibility: f32) {
             },
         );
     }
+    return seats
 }
