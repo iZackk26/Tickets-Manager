@@ -1,3 +1,6 @@
+mod stadium;
+
 fn main() {
-    println!("Hello, world!");
+    stadium::structures::a();
 }
+
