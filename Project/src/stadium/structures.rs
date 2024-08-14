@@ -16,7 +16,6 @@ impl Default for Status {
 
 #[derive(Debug, Default)]
 pub struct Zone {
-    pub name: String,
     pub prop: String,
     pub categories: HashMap<char, Category>,
 }
