@@ -1,30 +1,30 @@
 use std::collections::HashMap;
 use crate::stadium::data;
 
-enum Status {
+pub enum Status {
     Purchased,
     Reserved,
-    Available
+    Available,
 }
 
-struct Zone {
-    name : String,
-    prop : String,
-    categories : HashMap<char, Category>
+pub struct Zone {
+    pub name: String,
+    pub prop: String,
+    pub categories: HashMap<char, Category>,
 }
 
-struct Category {
-    rows : HashMap<char, Row>
+pub struct Category {
+    pub rows: HashMap<char, Row>,
 }
 
-struct Row {
-    seats : HashMap<u8, Seat>
+pub struct Row {
+    pub seats: HashMap<u8, Seat>,
 }
 
-struct Seat {
-    number : u8,
-    visibility : f32,
-    status : Status
+pub struct Seat {
+    pub number: u8,
+    pub visibility: f32,
+    pub status: Status,
 }
 
 pub fn a() {
