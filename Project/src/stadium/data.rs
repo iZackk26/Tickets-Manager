@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use crate::stadium::structures::{Seat, Status};
+use crate::stadium::structures::{Category, Row, Seat, Status};
 
 pub fn b() {
     println!("this is the data file.")
@@ -28,20 +28,36 @@ fn define_data() {
 
 }
 
-fn generate_data() {
-    let mut zones = HashMap::new();
+pub fn generate_data()  {
+
     let zone_names = vec!["Norte", "Sur", "Este", "Oeste"];
+    let mut category_a : Category;
     for zone in zone_names.iter() {
-        let mut categories = HashMap::new();
+        //let mut categories = HashMap::new();
 
         // Category A
         // 5 Filas
         // (n \cdot 20) / 100
-        let mut rows_a = HashMap::new();
+        let mut rows_a = HashMap::new(); // Rows list
+        let row_1 = Row {
+            seats: create_row(1.00 * 25.00 / 100.00) // Seats list
+        };
+
+        rows_a.insert('W', row_1);
+
+        for row in rows_a {
+            println!("{:?}", row);
+        }
+
+        category_a.rows = rows_a;
+
     }
+    return rows_a
+
+
 }
 
-fn create_row(row_visibility: f32) {
+fn create_row(row_visibility: f32) -> HashMap<u8, Seat>{
     // % de visibilidad
     // 5 filas 5 asientos
 
@@ -69,4 +85,5 @@ fn create_row(row_visibility: f32) {
             },
         );
     }
+    seats
 }
