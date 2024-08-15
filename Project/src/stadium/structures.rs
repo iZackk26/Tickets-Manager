@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use crate::stadium::data;
 
 #[derive(Debug)]
 pub enum Status {

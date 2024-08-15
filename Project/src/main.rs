@@ -5,5 +5,5 @@ mod stadium;
 
 fn main() {
     let mut stadium : HashMap<String, Zone> = stadium::data::generate_stadium();
-    println!("{:?}", stadium.get("Norte").unwrap().categories);
+    println!("{:?}", stadium.get("North").unwrap().categories.get(&'A').unwrap().rows.get(&'W').unwrap().seats);
 }

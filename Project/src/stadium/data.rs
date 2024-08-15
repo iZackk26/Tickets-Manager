@@ -3,7 +3,7 @@ use crate::stadium::structures::{Category, Row, Seat, Status, Zone};
 
 pub fn generate_stadium() -> HashMap<String, Zone> {
 
-    let zone_names : Vec<&str> = vec!["Norte", "Sur", "Este", "Oeste"];
+    let zone_names : Vec<&str> = vec!["North", "South", "East", "West"];
     let categories_names : Vec<char> = vec!['A', 'B', 'C', 'D'];
     let mut visibility_rate : f32 = 0.00;
     let mut zones : HashMap<String, Zone> = HashMap::new();
@@ -50,19 +50,12 @@ pub fn generate_stadium() -> HashMap<String, Zone> {
 }
 
 pub fn create_rows(row_visibility: f32, seats_quantiy : u8) -> HashMap<u8, Seat> {
-    // % de visibilidad
-    // 5 filas 5 asientos
-
     let mut seats = HashMap::new();
 
     for seat_number in 1..= seats_quantiy {
         let mut visibility = row_visibility;
-
-        // Ajuste de visibilidad para los asientos centrales (4, 5, 6)
         if seat_number >= 4 && seat_number <= 6 {
-            visibility += row_visibility * 0.5; // Aumenta un 2% de la visibilidad base
-
-            // Asegúrate de que la visibilidad no exceda 1.0
+            visibility += row_visibility * 1.25;
             if visibility > 1.0 {
                 visibility = 1.0;
             }
