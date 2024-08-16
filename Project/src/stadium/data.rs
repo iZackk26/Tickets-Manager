@@ -3,8 +3,8 @@ use crate::stadium::structures::{Category, Row, Seat, Status, Zone};
 
 pub fn generate_stadium() -> HashMap<String, Zone> {
 
-    let zone_names : Vec<&str> = vec!["North", "South", "East", "West"];
-    let categories_names : Vec<char> = vec!['A', 'B', 'C', 'D'];
+    let zone_names : Vec<&str> = vec!["north", "south", "east", "west"];
+    let categories_names : Vec<char> = vec!['a', 'b', 'c', 'd'];
     let mut visibility_rate : f32 = 0.00;
     let mut zones : HashMap<String, Zone> = HashMap::new();
 
@@ -15,7 +15,7 @@ pub fn generate_stadium() -> HashMap<String, Zone> {
             let mut category : Category = Category::default();
             let mut rows : HashMap<char, Row> = HashMap::new();
 
-            if category_name == &'B' || category_name == &'C' {
+            if category_name == &'b' || category_name == &'c' {
                 visibility_rate = 0.00;
             }  else {
                 visibility_rate = 5.00;
@@ -36,10 +36,10 @@ pub fn generate_stadium() -> HashMap<String, Zone> {
                 seats: create_rows(4.00 * (25.00 - visibility_rate) / 100.00, 10)
             };
 
-            rows.insert('W', row_1);
-            rows.insert('X', row_2);
-            rows.insert('Y', row_3);
-            rows.insert('Z', row_4);
+            rows.insert('w', row_1);
+            rows.insert('x', row_2);
+            rows.insert('y', row_3);
+            rows.insert('z', row_4);
 
             category.rows = rows;
             zone.categories.insert(*category_name, category);
