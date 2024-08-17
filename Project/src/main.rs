@@ -29,5 +29,17 @@ fn main() {
 
 
     //println!("{:?}", stadium.get("north").unwrap().categories.get(&'a').unwrap().rows.get(&'w').unwrap().seats);
-    algorithm::test(&stadium);
+    //algorithm::test(&stadium);
+
+    let numbers = vec![1,6,7];
+    let mut difference_2: i32 = 0;
+
+    for i in 0..numbers.len() - 1 {
+        let difference = (numbers[i + 1] as i32 - numbers[i] as i32).abs() - 1;
+        difference_2 += difference;
+        println!("Diferencia entre {} y {}: {}", numbers[i], numbers[i + 1], difference);
+    }
+    println!("{}", difference_2);
+
+
 }
