@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet};
 use itertools::Itertools;
 use crate::stadium::structures::{Category, Seat, Status, Zone};
 
+
 fn get_zone_candidates(chosen_zone: &Zone) -> Vec<Vec<Vec<&Seat>>> {
     let mut zone_available_seats: Vec<Vec<Vec<&Seat>>> = Vec::new();
     for (category_key, category) in chosen_zone.categories.iter() {
@@ -9,14 +10,17 @@ fn get_zone_candidates(chosen_zone: &Zone) -> Vec<Vec<Vec<&Seat>>> {
         for (row_key, row) in category.rows.iter() {
             let mut row_available_seats: Vec<&Seat> = Vec::new();
             for (seat_key, seat) in row.seats.iter() {
-                if (seat.status == Status::Available) {
-                    row_available_seats.push(seat)
+                //println!("Checking seat {}: {:?}", seat_key, seat.status); // Imprime el estado de cada asiento
+                if seat.status == Status::Available {
+                    row_available_seats.push(seat);
                 }
+
             }
             category_available_seats.push(row_available_seats);
         }
         zone_available_seats.push(category_available_seats);
     }
+    println!("{:?}", zone_available_seats); // Verifica todas las estructuras al final
     return zone_available_seats
 }
 
@@ -91,6 +95,7 @@ fn filter_row_candidates(row_candidates: Vec<Vec<&Seat>>) -> Vec<&Seat> {
     }
     return row_candidate
 }
+
 
 pub fn test(stadium: & HashMap<String, Zone>) {
     let user_chosen_zone: String = String::from("shaded"); //sombra
