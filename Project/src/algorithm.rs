@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use itertools::Itertools;
 use crate::stadium::structures::{Category, Seat, Status, Zone};
 
 fn get_zone_candidates(chosen_zone: &Zone) -> Vec<Vec<Vec<&Seat>>> {
@@ -37,6 +38,7 @@ fn get_category_candidates(category_available_seats: Vec<Vec<&Seat>>, seats_quan
 
     return category_candidates
 }
+
 fn get_row_candidates(row_available_seats: Vec<&Seat>, seats_quantity: u8) -> Vec<&Seat> {
     let mut row_candidate: Vec<&Seat> = Vec::new();
     let mut current_row_available_seats: u8 = 0;
@@ -52,25 +54,10 @@ fn get_row_candidates(row_available_seats: Vec<&Seat>, seats_quantity: u8) -> Ve
     }
 
     let mut row_candidates: Vec<Vec<&Seat>> = Vec::new();
-    for seat in row_available_seats.iter() {
-        let mut seats_founded: u8 = 0;
-        let mut temporal_candidate: Vec<&Seat> = Vec::new();
-        if (seat.status == Status::Available) {
-            temporal_candidate.push(seat);
-            seats_founded += 1;
-            for next_seat in row_available_seats.iter() {
-                if (seats_founded == seats_quantity) {
-                    break
-                }
-
-                if (next_seat.status == Status::Available && next_seat.number != seat.number) {
-                    temporal_candidate.push(next_seat);
-                    seats_founded += 1;
-
-                }
-            }
+    for candidate in row_available_seats.iter().combinations(seats_quantity as usize) {
+        if candidate.iter().all(|&&seat| seat.status == Status::Available) {
+            row_candidates.push(candidate.into_iter().map(|&seat| seat).collect());
         }
-        row_candidates.push(temporal_candidate);
     }
 
     row_candidate = filter_row_candidates(row_candidates);
@@ -107,7 +94,7 @@ fn filter_row_candidates(row_candidates: Vec<Vec<&Seat>>) -> Vec<&Seat> {
 
 pub fn test(stadium: & HashMap<String, Zone>) {
     let user_chosen_zone: String = String::from("shaded"); //sombra
-    let seats_requested: u8 = 2;
+    let seats_requested: u8 = 5;
     if (user_chosen_zone == "shaded") {
         let north_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_candidates(stadium.get("north").unwrap());
         println!("{:?}", get_row_candidates(north_zone_candidates[0][0].clone(), seats_requested))

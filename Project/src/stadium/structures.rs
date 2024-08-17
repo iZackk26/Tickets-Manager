@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Status {
     Purchased,
     Reserved,
@@ -13,23 +13,23 @@ impl Default for Status {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Zone {
     pub prop: String,
     pub categories: HashMap<char, Category>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Category {
     pub rows: HashMap<char, Row>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Row {
     pub seats: HashMap<u8, Seat>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Seat {
     pub number: u8,
     pub visibility: f32,
