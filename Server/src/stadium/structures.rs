@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::sync::RwLock;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Status {
@@ -13,20 +14,38 @@ impl Default for Status {
     }
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default)]
 pub struct Zone {
     pub prop: String,
-    pub categories: HashMap<char, Category>,
+    pub categories: RwLock<HashMap<char, Category>>,
 }
 
-#[derive(Debug, Default, Clone)]
+
+impl Zone {
+    pub fn get_categories(&self) -> std::sync::RwLockReadGuard<HashMap<char, Category>> {
+        self.categories.read().unwrap()
+    }
+}
+
+#[derive(Debug, Default)]
 pub struct Category {
-    pub rows: HashMap<char, Row>,
+    pub rows: RwLock<HashMap<char, Row>>,
 }
 
-#[derive(Debug, Default, Clone)]
+impl Category {
+    pub fn get_rows(&self) -> std::sync::RwLockReadGuard<HashMap<char, Row>> {
+        self.rows.read().unwrap()
+    }
+}
+
+#[derive(Debug, Default)]
 pub struct Row {
-    pub seats: HashMap<u8, Seat>,
+    pub seats: RwLock<HashMap<u8, Seat>>,
+}
+impl Row {
+    pub fn get_seats(&self) -> std::sync::RwLockReadGuard<HashMap<u8, Seat>> {
+        self.seats.read().unwrap()
+    }
 }
 
 #[derive(Debug, Default, Clone)]

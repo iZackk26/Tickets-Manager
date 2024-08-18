@@ -1,5 +1,6 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 use crate::stadium::structures::{Category, Row, Seat, Status, Zone};
+use std::sync::RwLock;
 
 pub fn generate_stadium() -> HashMap<String, Zone> {
 
@@ -10,6 +11,7 @@ pub fn generate_stadium() -> HashMap<String, Zone> {
 
     for zone_name in zone_names.iter() {
         let mut zone : Zone = Zone::default();
+        let mut categories: HashMap<char, Category> = HashMap::new();
 
         for category_name in categories_names.iter() {
             let mut category : Category = Category::default();
@@ -41,15 +43,18 @@ pub fn generate_stadium() -> HashMap<String, Zone> {
             rows.insert('y', row_3);
             rows.insert('z', row_4);
 
-            category.rows = rows;
-            zone.categories.insert(*category_name, category);
+            category.rows = RwLock::new(rows);
+            // Obtener el `RwLockWriteGuard` para modificar `categories`
+            let mut categories_guard = zone.categories.write().unwrap();
+            categories_guard.insert(*category_name, category);
         }
+        zone.categories = RwLock::new(categories);
         zones.insert(zone_name.to_string(), zone);
     }
     return zones
 }
 
-pub fn create_rows(zone_name: String, category_name: char, row_name: char, row_visibility: f32, seats_quantiy : u8) -> HashMap<u8, Seat> {
+pub fn create_rows(zone_name: String, category_name: char, row_name: char, row_visibility: f32, seats_quantiy : u8) -> RwLock<HashMap<u8, Seat>> {
     let mut seats = HashMap::new();
 
     for seat_number in 1..= seats_quantiy {
@@ -72,5 +77,5 @@ pub fn create_rows(zone_name: String, category_name: char, row_name: char, row_v
             },
         );
     }
-    return seats
+     return RwLock::new(seats) // Envuelve el HashMap en RwLock
 }

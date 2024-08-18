@@ -1,0 +1,20 @@
+﻿[
+  {
+    "SectionType": "shaded",
+    "Quantity": 3,
+    "ResponseTime": 12,
+    "Response": true
+  },
+  {
+    "SectionType": "shaded",
+    "Quantity": 2,
+    "ResponseTime": 5,
+    "Response": false
+  },
+  {
+    "SectionType": "shaded",
+    "Quantity": 4,
+    "ResponseTime": 8,
+    "Response": true
+  }
+]
