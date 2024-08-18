@@ -13,7 +13,7 @@ pub fn generate_stadium() -> HashMap<String, Zone> {
         let mut zone : Zone = Zone::default();
         let mut categories: HashMap<char, Category> = HashMap::new();
 
-        for category_name in categories_names.iter() {
+        for category_name in categories_names.iter() { //.
             let mut category : Category = Category::default();
             let mut rows : HashMap<char, Row> = HashMap::new();
 

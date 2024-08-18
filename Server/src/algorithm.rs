@@ -30,7 +30,7 @@ fn get_zone_available_seats(chosen_zone: &Zone) -> Vec<Vec<Vec<&Seat>>> {
         zone_available_seats.push(category_available_seats);
     }
 
-    zone_available_seats
+    zone_available_seats //.
 }
 
 

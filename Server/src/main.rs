@@ -14,7 +14,7 @@ fn main() {
     //algorithm::test(&stadium);
     //server::socket::server();
 
-    // Ejecutar el servidor asincrónicamente
+    // Ejecutar el servidor asincrónicamente //.
     if let Err(e) = server(&stadium) {
         eprintln!("Error en el servidor: {}", e);
     }

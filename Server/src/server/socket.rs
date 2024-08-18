@@ -14,7 +14,7 @@ pub async fn server(stadium: &HashMap<String, Zone>) -> Result<(), Box<dyn std::
         // Aceptar una conexión entrante
         let (mut socket, _) = listener.accept().await.unwrap();
 
-        // Clonar el socket para usarlo en la tarea asíncrona
+        // Clonar el socket para usarlo en la tarea asíncrona //.
         tokio::spawn(async move {
             // Buffer para leer datos
             let mut buf = vec![0; 1024];
