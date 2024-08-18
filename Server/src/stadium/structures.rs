@@ -31,6 +31,9 @@ pub struct Row {
 
 #[derive(Debug, Default, Clone)]
 pub struct Seat {
+    pub zone: String,
+    pub category: char,
+    pub row: char,
     pub number: u8,
     pub visibility: f32,
     pub status: Status,

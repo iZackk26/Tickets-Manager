@@ -9,6 +9,6 @@ fn main() {
     let mut stadium : HashMap<String, Zone> = stadium::data::generate_stadium();
 
     //println!("{:?}", stadium.get("north").unwrap().categories.get(&'a').unwrap().rows.get(&'w').unwrap().seats);
-    //algorithm::test(&stadium);
-    server::socket::server();
+    algorithm::test(&stadium);
+    //server::socket::server();
 }
