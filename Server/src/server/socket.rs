@@ -32,7 +32,7 @@ pub async fn server(stadium: &HashMap<String, Zone>) -> Result<(), Box<dyn std::
                         Ok(buyer) => { // Verifica que la deserialización sea exitosa
                             // Aquí se implementa la lógica
                             println!("Datos recibidos: {:?}", buyer);
-                            test(&stadium, buyer);
+                            //test(&stadium);
 
 
                         }

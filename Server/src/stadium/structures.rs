@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::RwLock;
+use std::sync::Arc;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Status {
@@ -17,34 +17,34 @@ impl Default for Status {
 #[derive(Debug, Default)]
 pub struct Zone {
     pub prop: String,
-    pub categories: RwLock<HashMap<char, Category>>,
+    pub categories: Arc<HashMap<char, Category>>,
 }
 
-
 impl Zone {
-    pub fn get_categories(&self) -> std::sync::RwLockReadGuard<HashMap<char, Category>> {
-        self.categories.read().unwrap()
+    pub fn get_categories(&self) -> Arc<HashMap<char, Category>> {
+        Arc::clone(&self.categories)
     }
 }
 
 #[derive(Debug, Default)]
 pub struct Category {
-    pub rows: RwLock<HashMap<char, Row>>,
+    pub rows: Arc<HashMap<char, Row>>,
 }
 
 impl Category {
-    pub fn get_rows(&self) -> std::sync::RwLockReadGuard<HashMap<char, Row>> {
-        self.rows.read().unwrap()
+    pub fn get_rows(&self) -> Arc<HashMap<char, Row>> {
+        Arc::clone(&self.rows)
     }
 }
 
 #[derive(Debug, Default)]
 pub struct Row {
-    pub seats: RwLock<HashMap<u8, Seat>>,
+    pub seats: Arc<HashMap<u8, Seat>>,
 }
+
 impl Row {
-    pub fn get_seats(&self) -> std::sync::RwLockReadGuard<HashMap<u8, Seat>> {
-        self.seats.read().unwrap()
+    pub fn get_seats(&self) -> Arc<HashMap<u8, Seat>> {
+        Arc::clone(&self.seats)
     }
 }
 
