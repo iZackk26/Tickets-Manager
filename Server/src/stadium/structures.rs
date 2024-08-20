@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::sync::RwLock;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone,Copy)]
 pub enum Status {
     Purchased,
     Reserved,
@@ -48,7 +48,7 @@ impl Row {
     }
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default)]
 pub struct Seat {
     pub zone: String,
     pub category: char,

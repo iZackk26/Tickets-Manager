@@ -3,26 +3,30 @@ use itertools::Itertools;
 use crate::server::Buyer::Buyer;
 use crate::stadium::structures::{Category, Seat, Status, Zone};
 
+fn get_zone_available_seats1(chosen_zone: &Zone) {
+    // get a categoy full of copys of seats
+    
+}
 
-fn get_zone_available_seats(chosen_zone: &Zone) -> Vec<Vec<Vec<&Seat>>> {
+fn get_zone_available_seats(chosen_zone: &Zone) -> Vec<Vec<Vec<Seat>>> {
     // Obtener un RwLockReadGuard para poder leer el HashMap
     let categories_guard = chosen_zone.categories.read().unwrap();
 
-    let mut zone_available_seats: Vec<Vec<Vec<&Seat>>> = Vec::new();
+    let mut zone_available_seats: Vec<Vec<Vec<Seat>>> = Vec::new();
 
     // Iterar sobre el HashMap protegido por el RwLock
     for (_, category) in categories_guard.iter() {
         let rows_guard = category.rows.read().unwrap();
 
-        let mut category_available_seats: Vec<Vec<&Seat>> = Vec::new();
+        let mut category_available_seats: Vec<Vec<Seat>> = Vec::new();
 
         for (_, row) in rows_guard.iter() {
             let seats_guard = row.seats.read().unwrap();
 
-            let mut row_available_seats: Vec<&Seat> = Vec::new();
+            let mut row_available_seats: Vec<Seat> = Vec::new();
             for (_, seat) in seats_guard.iter() {
                 if seat.status == Status::Available {
-                    row_available_seats.push(&seat.clone());
+                    row_available_seats.push(seat.clone());
                 }
             }
             category_available_seats.push(row_available_seats);
@@ -80,7 +84,7 @@ fn get_category_candidate<'a>(category_available_seats: &'a Vec<Vec<&'a Seat>>, 
 
             // Desreferencia los elementos de la combinación para convertir `&&Seat` en `&Seat`
             let seats: Vec<&Seat> = combination.into_iter().map(|&seat| seat).collect();
-            if seats.iter().all(|&&seat| seat.status == Status::Available) {
+            if seats.iter().all(|&seat| seat.status == Status::Available) {
                 category_general_candidates.push(seats.into_iter().collect());
             }
         }
@@ -170,11 +174,11 @@ pub fn test(stadium: & HashMap<String, Zone>, buyer: Buyer) {
     // Comentados con el proposito de realizar pruebas
 
     if buyer.SectionType == "shaded" {
-        let north_zone_candidates: Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("north").unwrap());
+        let north_zone_candidates: Vec<Vec<Vec<Seat>>> = get_zone_available_seats(stadium.get("north").unwrap());
         //println!("{:#?}", get_category_candidate(&north_zone_candidates[0], buyer.Quantity));
         //let south_zone_candidates: Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("south").unwrap());
     } else {
-        let east_zone_candidates: Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("east").unwrap());
-        let west_zone_candidates: Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("west").unwrap());
+        let east_zone_candidates: Vec<Vec<Vec<Seat>>> = get_zone_available_seats(stadium.get("east").unwrap());
+        let west_zone_candidates: Vec<Vec<Vec<Seat>>> = get_zone_available_seats(stadium.get("west").unwrap());
     }
 }
