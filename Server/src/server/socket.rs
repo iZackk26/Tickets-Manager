@@ -1,48 +1,36 @@
 use std::collections::HashMap;
-use tokio::net::{TcpListener, TcpStream};
-use tokio::io::{AsyncReadExt};
-use crate::algorithm::test;
+use tokio::io::AsyncReadExt;
+use std::net::{TcpListener, TcpStream};
 use crate::server::Buyer::Buyer;
-use crate::stadium::structures::Zone;
 
-#[tokio::main]
-pub async fn server(stadium: &HashMap<String, Zone>) -> Result<(), Box<dyn std::error::Error>> {
-    let listener = TcpListener::bind("127.0.0.1:7878").await?;
-    println!("Servidor escuchando en 127.0.0.1:7878");
-
+pub fn handle_client(mut stream: TcpStream){
+    let mut buffer = [0; 512];
     loop {
-        // Aceptar una conexión entrante
-        let (mut socket, _) = listener.accept().await.unwrap();
-
-        // Clonar el socket para usarlo en la tarea asíncrona //.
-        tokio::spawn(async move {
-            // Buffer para leer datos
-            let mut buf = vec![0; 1024];
-
-            // Leer datos del socket
-            match socket.read(&mut buf).await {
-
-                Ok(n) if n == 0 => return, // Conexión cerrada por parte del cliente
-
-                Ok(n) => {
-                    // Buffer para cargar los datos
-                    let data = &buf[..n];
-
-                    match serde_json::from_slice::<Buyer>(data) { // Deserializa los datos
-                        Ok(buyer) => { // Verifica que la deserialización sea exitosa
-                            // Aquí se implementa la lógica
-                            println!("Datos recibidos: {:?}", buyer);
-                            //test(&stadium);
-
-
-                        }
-                        Err(e) => println!("Error al deserializar: {}", e),
+        match stream.read(&mut buffer) {
+            Ok(0) => {
+                // Conexión cerrada por el cliente
+                println!("Client disconnected");
+                break;
+            }
+            Ok(n) => {
+                // Deserializar el JSON recibido
+                let received_data = &buffer[0..n];
+                match serde_json::from_slice::<Buyer>(received_data) {
+                    Ok(message) => {
+                        println!("Received message: {:?}", message);
+                        // ...
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to deserialize JSON: {}", e);
                     }
                 }
-                Err(e) => {
-                    println!("Error al leer del socket: {}", e);
-                }
             }
-        });
+            Err(e) => {
+                eprintln!("Failed to read from stream: {}", e);
+                break;
+            }
+        }
     }
+
+
 }
