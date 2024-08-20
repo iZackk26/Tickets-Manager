@@ -1,43 +1,26 @@
 use std::collections::{HashMap, HashSet};
 use itertools::Itertools;
-use crate::server::Buyer::Buyer;
 use crate::stadium::structures::{Category, Seat, Status, Zone};
 
-fn get_zone_available_seats1(chosen_zone: &Zone) {
-    // get a categoy full of copys of seats
-    
-}
 
-fn get_zone_available_seats(chosen_zone: &Zone) -> Vec<Vec<Vec<Seat>>> {
-    // Obtener un RwLockReadGuard para poder leer el HashMap
-    let categories_guard = chosen_zone.categories.read().unwrap();
-
-    let mut zone_available_seats: Vec<Vec<Vec<Seat>>> = Vec::new();
-
-    // Iterar sobre el HashMap protegido por el RwLock
-    for (_, category) in categories_guard.iter() {
-        let rows_guard = category.rows.read().unwrap();
-
-        let mut category_available_seats: Vec<Vec<Seat>> = Vec::new();
-
-        for (_, row) in rows_guard.iter() {
-            let seats_guard = row.seats.read().unwrap();
-
-            let mut row_available_seats: Vec<Seat> = Vec::new();
-            for (_, seat) in seats_guard.iter() {
+fn get_zone_available_seats(chosen_zone: &Zone) -> Vec<Vec<Vec<&Seat>>> {
+    let mut zone_available_seats: Vec<Vec<Vec<&Seat>>> = Vec::new();
+    for (category_key, category) in chosen_zone.categories.iter() {
+        let mut category_available_seats: Vec<Vec<&Seat>> = Vec::new();
+        for (row_key, row) in category.rows.iter() {
+            let mut row_available_seats: Vec<&Seat> = Vec::new();
+            for (seat_key, seat) in row.seats.iter() {
                 if seat.status == Status::Available {
-                    row_available_seats.push(seat.clone());
+                    row_available_seats.push(seat);
                 }
+
             }
             category_available_seats.push(row_available_seats);
         }
         zone_available_seats.push(category_available_seats);
     }
-
-    zone_available_seats //.
+    return zone_available_seats
 }
-
-
 
 fn get_zone_candidate() {
     // AQUI HAY QUE RECORRER CADA SUBLISTA QUE DA LA FUNCION DE ARRIBA Y A CADA UNA APLICARLE UN get_category_cadidate
@@ -75,17 +58,14 @@ fn get_category_candidate<'a>(category_available_seats: &'a Vec<Vec<&'a Seat>>, 
         let mut all_available_seats: Vec<&Seat> = Vec::new();
         for row in category_available_seats.iter() {
             for seat in row.iter() {
-                all_available_seats.push(*seat) // fijarse en esto por los clone -------------------------------------------------------------------------------------
+                all_available_seats.push(seat.clone()) // fijarse en esto por los clone -------------------------------------------------------------------------------------
             }
         }
 
         let mut category_general_candidates: Vec<Vec<&Seat>> = Vec::new();
-        for combination in all_available_seats.iter().combinations(seats_quantity as usize) {
-
-            // Desreferencia los elementos de la combinación para convertir `&&Seat` en `&Seat`
-            let seats: Vec<&Seat> = combination.into_iter().map(|&seat| seat).collect();
-            if seats.iter().all(|&seat| seat.status == Status::Available) {
-                category_general_candidates.push(seats.into_iter().collect());
+        for seat in all_available_seats.iter().combinations(seats_quantity as usize) {
+            if seat.iter().all(|&&seat| seat.status == Status::Available) {
+                category_general_candidates.push(seat.into_iter().map(|&seat| seat).collect());
             }
         }
         best_candidate = filter_candidates(category_general_candidates); // Escoge el mejor de todas las combinaciones y retorna
@@ -168,17 +148,15 @@ fn get_candidate_visibility_average(candidate: &Vec<&Seat>) -> f32 {
 }
 
 
-pub fn test(stadium: & HashMap<String, Zone>, buyer: Buyer) {
-    //let user_chosen_zone: String = String::from("shaded"); //sombra
-    //let seats_requested: u8 = 5;
-    // Comentados con el proposito de realizar pruebas
-
-    if buyer.SectionType == "shaded" {
-        let north_zone_candidates: Vec<Vec<Vec<Seat>>> = get_zone_available_seats(stadium.get("north").unwrap());
-        //println!("{:#?}", get_category_candidate(&north_zone_candidates[0], buyer.Quantity));
-        //let south_zone_candidates: Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("south").unwrap());
+pub fn test(stadium: & HashMap<String, Zone>) {
+    let user_chosen_zone: String = String::from("shaded"); //sombra
+    let seats_requested: u8 = 5;
+    if (user_chosen_zone == "shaded") {
+        let north_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("north").unwrap());
+        let candidate = (&north_zone_candidates[0], seats_requested);
+        //let south_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("south").unwrap());
     } else {
-        let east_zone_candidates: Vec<Vec<Vec<Seat>>> = get_zone_available_seats(stadium.get("east").unwrap());
-        let west_zone_candidates: Vec<Vec<Vec<Seat>>> = get_zone_available_seats(stadium.get("west").unwrap());
+        let east_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("east").unwrap());
+        let west_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("west").unwrap());
     }
 }
