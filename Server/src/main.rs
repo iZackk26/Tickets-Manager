@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 use std::net::TcpListener;
 use std::thread;
-use mpmcpq::{PriorityQueue};
 use crate::server::socket::handle_client;
-use crate::stadium::structures::{Zone};
+use crate::stadium::structures::{Status, Zone};
+use mpmcpq::{PriorityQueue, Stash, Message};
+use crate::server::Buyer::Buyer;
 
 mod stadium;
 mod algorithm;
@@ -11,6 +12,18 @@ mod server;
 
 
 fn main() {
+    let priority_queue: PriorityQueue<Buyer, i8> = PriorityQueue::new();
+    let mut stash: Stash<Buyer, i8> = Stash::new(&priority_queue);
+
+    /*
+    let priority1 = buyer.Quantity.clone();
+    priority_queue.send(buyer, -priority1, &mut stash);
+     */
+
+
+    while let Message::Msg(message, priority) = priority_queue.recv() {
+        println!("Processing task: {:?} with priority: {}", message, priority);
+    }
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
 
     for stream in listener.incoming() {
@@ -18,6 +31,7 @@ fn main() {
             Ok(stream) => {
                 thread::spawn(move || {
                     handle_client(stream);
+
                 });
             }
             Err(e) => {
