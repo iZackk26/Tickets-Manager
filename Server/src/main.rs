@@ -16,10 +16,20 @@ mod server;
 
 fn main() {
     let mut stadium : HashMap<String, Zone> = stadium::data::generate_stadium();
-    algorithm::get_best_seats(&mut stadium);
+    algorithm::get_best_seats(&mut stadium, "shaded".to_string(), 3);
 
     let priority_queue: Arc<PriorityQueue<Buyer, i8>> = Arc::new(PriorityQueue::new());
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    println!("Server listening on port 7878");
+
+
+    // Hilo que procesa los datos de la PriorityQueue
+    let pq = Arc::clone(&priority_queue);
+    thread::spawn( move || {
+        while let Message::Msg(message, priority)= pq.recv() {
+            println!("{:?}", message);
+        }
+    });
 
     for stream in listener.incoming() {
         match stream {

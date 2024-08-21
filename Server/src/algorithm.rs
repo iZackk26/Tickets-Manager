@@ -223,11 +223,8 @@ fn modify_seats_status(stadium: &mut HashMap<String, Zone>, candidate: Vec<Seat>
         }
     }
 }
-
-pub fn get_best_seats(stadium: &mut HashMap<String, Zone>) {
-    let user_chosen_zone: String = String::from("shaded"); //sombra
-    let seats_requested: u8 = 3;
-    if (user_chosen_zone == "shaded") {
+pub fn get_best_seats(stadium: &mut HashMap<String, Zone>, zone_requested: String, seats_requested: u8) {
+    if (zone_requested == "shaded") {
         //println!("{:#?}", stadium.get("north").unwrap().categories.get(&'a').unwrap().rows.get(&'w').unwrap().seats.get(&1).unwrap());
         let north_zone_candidates : Vec<Vec<Vec<Seat>>> = get_zone_available_seats(stadium.get("north").unwrap().clone());
         //println!("{:#?}", get_row_candidate(north_zone_candidates[0][0].clone(), seats_requested));
