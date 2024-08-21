@@ -1,6 +1,5 @@
-use std::collections::HashMap;
-use tokio::io::AsyncReadExt;
 use std::net::{TcpListener, TcpStream};
+use std::io::{self, Read, Write}; // Asegúrate de que `Read` está importado
 use crate::server::Buyer::Buyer;
 
 pub fn handle_client(mut stream: TcpStream){
@@ -31,6 +30,5 @@ pub fn handle_client(mut stream: TcpStream){
             }
         }
     }
-
 
 }
