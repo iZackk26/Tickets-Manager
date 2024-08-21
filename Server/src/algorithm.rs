@@ -27,7 +27,7 @@ fn get_zone_available_seats(chosen_zone: Zone) -> Vec<Vec<Vec<Seat>>> {
 
 fn get_zone_candidate(zone_categories: Vec<Vec<Vec<Seat>>>, seats_quantity: u8) -> Vec<Seat> {
     // This function retrieves the best candidate from the entire zone
-
+    let mut best_candidate: Vec<Seat> = Vec::new();
     let mut zone_candidates: Vec<Vec<Seat>> = Vec::new();
 
     // For each category in the zone, it calls the function that retrieves the best seats from the entire category and stores this
@@ -36,8 +36,27 @@ fn get_zone_candidate(zone_categories: Vec<Vec<Vec<Seat>>>, seats_quantity: u8) 
         zone_candidates.push(get_category_candidate(category.clone(), seats_quantity));
     }
 
+    // If no best candidate was found in any row (from the previous loop, it gets something like: [ [], [], [], [] ]
+    // It needs to combine the available seats across the entire zone and choose those with the best visibility
+    if zone_candidates.iter().all(|sublist| sublist.is_empty()) {
+        let mut all_available_seats: Vec<Seat> = Vec::new();
+        for category in zone_categories.iter() {
+            for row in category.iter() {
+                for seat in row.iter() {
+                    all_available_seats.push(seat.clone());
+                }
+            }
+        }
+
+        // Now that it has all available seats, it calls the combinations function to get every combination possible
+        let general_candidates = get_available_combinations(all_available_seats, seats_quantity as usize);
+        best_candidate = filter_candidates(general_candidates); // Chooses the best combination
+        return best_candidate;
+
+    }
+
     // Filters the best candidate among the best candidates from each category, meaning it gets the best set of seats from the entire zone
-    let best_candidate: Vec<Seat> = filter_candidates(zone_candidates);
+    best_candidate = filter_candidates(zone_candidates);
     return best_candidate;
 }
 
@@ -73,19 +92,13 @@ fn get_category_candidate(category_available_seats: Vec<Vec<Seat>>, seats_quanti
         let mut all_available_seats: Vec<Seat> = Vec::new();
         for row in category_available_seats.iter() {
             for seat in row.iter() {
-                all_available_seats.push(seat.clone()); // Note the use of clone here
+                all_available_seats.push(seat.clone());
             }
         }
 
-        let mut category_general_candidates: Vec<Vec<Seat>> = Vec::new();
-        // At this point, it combines all available seats and stores the combinations in the previous variable
-        // You could see something like C(A,R), where A = number of available seats, R = number of requested seats
-        for seat in all_available_seats.iter().combinations(seats_quantity as usize) {
-            if seat.iter().all(|&seat| seat.status == Status::Available) {
-                category_general_candidates.push(seat.into_iter().map(|seat| seat.clone()).collect());
-            }
-        }
-        best_candidate = filter_candidates(category_general_candidates); // Chooses the best from all combinations and returns it
+        // Now that it has all available seats, it calls the combinations function to get every combination possible
+        let category_general_candidates = get_available_combinations(all_available_seats, seats_quantity as usize);
+        best_candidate = filter_candidates(category_general_candidates); // Chooses the best combination
         return best_candidate;
     }
 
@@ -112,19 +125,31 @@ fn get_row_candidate(row_available_seats: Vec<Seat>, seats_quantity: u8) -> Vec<
         return row_candidate;
     }
 
-    let mut row_candidates: Vec<Vec<Seat>> = Vec::new(); // Here, the candidates for the best set of seats in the row will be stored
-    // At this point, it combines all available seats and stores the combinations in the previous variable
-    // You could see something like C(A,R), where A = number of available seats, R = number of requested seats
-    for candidate in row_available_seats.iter().combinations(seats_quantity as usize) {
-        if candidate.iter().all(|&seat| seat.status == Status::Available) {
-            row_candidates.push(candidate.into_iter().map(|seat| seat.clone()).collect());
-        }
-    }
+    // Gets every seat combination possible
+    let row_candidates: Vec<Vec<Seat>> = get_available_combinations(row_available_seats, seats_quantity as usize);
 
     // From all the obtained combinations of seats, selects the best one, which will be the candidate for the current row
     row_candidate = filter_candidates(row_candidates);
     return row_candidate;
 }
+
+fn get_available_combinations(seats: Vec<Seat>, seats_quantity: usize) -> Vec<Vec<Seat>> {
+    // This variable will store all possible combinations of available seats.
+    let mut available_combinations: Vec<Vec<Seat>> = Vec::new();
+
+    // At this point, it combines all available seats and stores the combinations in the previous variable.
+    // You could see something like C(A,R), where A = number of available seats, R = number of requested seats.
+    for candidate in seats.iter().combinations(seats_quantity) {
+        // If all seats in the combination are available, the combination is added to the list of available combinations.
+        if candidate.iter().all(|&seat| seat.status == Status::Available) {
+            available_combinations.push(candidate.into_iter().map(|seat| seat.clone()).collect());
+        }
+    }
+
+    // Finally, it returns the list of available combinations that meet the criteria.
+    return available_combinations
+}
+
 
 fn filter_candidates(candidates_to_compare: Vec<Vec<Seat>>) -> Vec<Seat> {
     let mut best_candidate: Vec<Seat> = Vec::new(); // This is the best set of seats filtered
@@ -201,7 +226,7 @@ fn modify_seats_status(stadium: &mut HashMap<String, Zone>, candidate: Vec<Seat>
 
 pub fn get_best_seats(stadium: &mut HashMap<String, Zone>) {
     let user_chosen_zone: String = String::from("shaded"); //sombra
-    let seats_requested: u8 = 1;
+    let seats_requested: u8 = 3;
     if (user_chosen_zone == "shaded") {
         //println!("{:#?}", stadium.get("north").unwrap().categories.get(&'a').unwrap().rows.get(&'w').unwrap().seats.get(&1).unwrap());
         let north_zone_candidates : Vec<Vec<Vec<Seat>>> = get_zone_available_seats(stadium.get("north").unwrap().clone());
