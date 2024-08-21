@@ -8,9 +8,4 @@ itertools = "0.13.0"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-<<<<<<< HEAD
 mpmcpq = "0.9.3"
-
-=======
-mpmcpq = "0.9.3"
->>>>>>> 3ac90658b7cd8d6c949c3bb11f66635dac3c87d9

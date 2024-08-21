@@ -1,5 +1,8 @@
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::net::TcpListener;
+use std::ops::Deref;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use crate::server::socket::handle_client;
 use crate::stadium::structures::{Status, Zone};
@@ -12,26 +15,23 @@ mod server;
 
 
 fn main() {
-    let priority_queue: PriorityQueue<Buyer, i8> = PriorityQueue::new();
-    let mut stash: Stash<Buyer, i8> = Stash::new(&priority_queue);
+    let priority_queue: Arc<PriorityQueue<Buyer, i8>> = Arc::new(PriorityQueue::new());
 
-    /*
-    let priority1 = buyer.Quantity.clone();
-    priority_queue.send(buyer, -priority1, &mut stash);
-     */
+    // while let Message::Msg(message, priority) = priority_queue.recv() {
+    //     println!("Processing task: {:?} with priority: {}", message, priority);
+    // }
 
-
-    while let Message::Msg(message, priority) = priority_queue.recv() {
-        println!("Processing task: {:?} with priority: {}", message, priority);
-    }
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
 
     for stream in listener.incoming() {
         match stream {
             Ok(stream) => {
+                let priority_queue = Arc::clone(&priority_queue);
                 thread::spawn(move || {
-                    handle_client(stream);
-
+                    if let Ok(buyer) = handle_client(stream) {
+                        let priority: i8 = buyer.Quantity.clone();
+                        priority_queue.send_nostash(buyer, priority);
+                    }
                 });
             }
             Err(e) => {
