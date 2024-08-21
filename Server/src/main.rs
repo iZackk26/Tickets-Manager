@@ -16,7 +16,7 @@ mod server;
 
 fn main() {
     let mut stadium : HashMap<String, Zone> = stadium::data::generate_stadium();
-    algorithm::test(&mut stadium);
+    algorithm::get_best_seats(&mut stadium);
 
     let priority_queue: Arc<PriorityQueue<Buyer, i8>> = Arc::new(PriorityQueue::new());
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();

@@ -1,24 +1,28 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\iZack\\Languages\\Rust\\Tickets-Manager\\Client\\Client\\Client.csproj": {}
+    "C:\\Users\\Akhoz\\Desktop\\Akhoz\\TEC\\Semestre-IV\\Lenguajes-Programacion\\Proyectos\\Proyecto-I\\Tickets-Manager\\Client\\Client\\Client.csproj": {}
   },
   "projects": {
-    "C:\\Users\\iZack\\Languages\\Rust\\Tickets-Manager\\Client\\Client\\Client.csproj": {
+    "C:\\Users\\Akhoz\\Desktop\\Akhoz\\TEC\\Semestre-IV\\Lenguajes-Programacion\\Proyectos\\Proyecto-I\\Tickets-Manager\\Client\\Client\\Client.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\iZack\\Languages\\Rust\\Tickets-Manager\\Client\\Client\\Client.csproj",
+        "projectUniqueName": "C:\\Users\\Akhoz\\Desktop\\Akhoz\\TEC\\Semestre-IV\\Lenguajes-Programacion\\Proyectos\\Proyecto-I\\Tickets-Manager\\Client\\Client\\Client.csproj",
         "projectName": "Client",
-        "projectPath": "C:\\Users\\iZack\\Languages\\Rust\\Tickets-Manager\\Client\\Client\\Client.csproj",
-        "packagesPath": "C:\\Users\\iZack\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\iZack\\Languages\\Rust\\Tickets-Manager\\Client\\Client\\obj\\",
+        "projectPath": "C:\\Users\\Akhoz\\Desktop\\Akhoz\\TEC\\Semestre-IV\\Lenguajes-Programacion\\Proyectos\\Proyecto-I\\Tickets-Manager\\Client\\Client\\Client.csproj",
+        "packagesPath": "C:\\Users\\Akhoz\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Akhoz\\Desktop\\Akhoz\\TEC\\Semestre-IV\\Lenguajes-Programacion\\Proyectos\\Proyecto-I\\Tickets-Manager\\Client\\Client\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\iZack\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Akhoz\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {}
+        },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
@@ -55,7 +59,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Users\\iZack\\.dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -152,24 +152,50 @@ fn get_candidate_visibility_average(candidate: Vec<Seat>) -> f32 {
     return candidate_visibility_average
 }
 
-
-pub fn test(stadium: &mut HashMap<String, Zone>) {
-    let user_chosen_zone: String = String::from("shaded"); //sombra
-    let seats_requested: u8 = 3;
-    if (user_chosen_zone == "shaded") {
-        if let Some(north_zone) = stadium.get_mut("north") {
-            if let Some(category) = north_zone.categories.get_mut(&'a') {
-                if let Some(row) = category.rows.get_mut(&'w') {
-                    if let Some(seat) = row.seats.get_mut(&1) {
-                        seat.status = Status::Purchased;
+fn modify_seats_status(stadium: &mut HashMap<String, Zone>, candidate: Vec<Seat>, new_status: Status) {
+    for seat in candidate {
+        if let Some(zone) = stadium.get_mut(&seat.zone.to_string()) {
+            if let Some(category) = zone.categories.get_mut(&seat.category) {
+                if let Some(row) = category.rows.get_mut(&seat.row) {
+                    if let Some(seat_reference) = row.seats.get_mut(&seat.number) {
+                        seat_reference.status = new_status;
+                        println!("Function {:?}", seat_reference)
                     }
                 }
             }
         }
+    }
+}
+
+pub fn get_best_seats(stadium: &mut HashMap<String, Zone>) {
+    let user_chosen_zone: String = String::from("shaded"); //sombra
+    let seats_requested: u8 = 3;
+    if (user_chosen_zone == "shaded") {
         //println!("{:#?}", stadium.get("north").unwrap().categories.get(&'a').unwrap().rows.get(&'w').unwrap().seats.get(&1).unwrap());
         let north_zone_candidates : Vec<Vec<Vec<Seat>>> = get_zone_available_seats(stadium.get("north").unwrap().clone());
         //println!("{:#?}", get_row_candidate(north_zone_candidates[0][0].clone(), seats_requested));
-        println!("{:#?}", get_zone_candidate(north_zone_candidates, seats_requested))
+        let north_candidate: Vec<Seat> = get_zone_candidate(north_zone_candidates, seats_requested);
+        println!("{:?}", north_candidate);
+        modify_seats_status(stadium, north_candidate.clone(), Status::Reserved);
+        for seat in &north_candidate {
+            println!(
+                "{:#?}",
+                stadium
+                    .get(&seat.zone)
+                    .unwrap()
+                    .categories
+                    .get(&seat.category)
+                    .unwrap()
+                    .rows
+                    .get(&seat.row)
+                    .unwrap()
+                    .seats
+                    .get(&seat.number)
+                    .unwrap()
+            );
+        }
+        
+        //println!("{:#?}", north_candidate_reference);
         //let south_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("south").unwrap());
     } else {
         //let east_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("east").unwrap());
