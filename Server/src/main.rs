@@ -25,7 +25,7 @@ fn main() {
     //algorithm::get_best_seats(&mut stadium, "shaded".to_string(), 3);
 
     let priority_queue: Arc<PriorityQueue<Buyer, i8>> = Arc::new(PriorityQueue::new());
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let listener = TcpListener::bind("192.168.0.104:8080").unwrap();
     println!("Server listening on port 7878");
 
 

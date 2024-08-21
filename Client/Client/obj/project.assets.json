@@ -8,26 +8,23 @@
     "net8.0": []
   },
   "packageFolders": {
-    "/Users/izack/.nuget/packages/": {}
+    "C:\\Users\\iZack\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/izack/Tec/Lenguajes/Rust/Tickets-Manager/Client/Client/Client.csproj",
+      "projectUniqueName": "C:\\Users\\iZack\\Languages\\Rust\\Tickets-Manager\\Client\\Client\\Client.csproj",
       "projectName": "Client",
-      "projectPath": "/Users/izack/Tec/Lenguajes/Rust/Tickets-Manager/Client/Client/Client.csproj",
-      "packagesPath": "/Users/izack/.nuget/packages/",
-      "outputPath": "/Users/izack/Tec/Lenguajes/Rust/Tickets-Manager/Client/Client/obj/",
+      "projectPath": "C:\\Users\\iZack\\Languages\\Rust\\Tickets-Manager\\Client\\Client\\Client.csproj",
+      "packagesPath": "C:\\Users\\iZack\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\iZack\\Languages\\Rust\\Tickets-Manager\\Client\\Client\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/izack/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\iZack\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
-      "sources": {
-        "https://api.nuget.org/v3/index.json": {}
-      },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
@@ -64,7 +61,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/Users/izack/.dotnet/sdk/8.0.303/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Users\\iZack\\.dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
