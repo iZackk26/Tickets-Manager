@@ -36,7 +36,7 @@ class Program
         try
         {
             // Conecta al servidor Rust
-            await tcpClient.ConnectAsync("127.0.0.1", 7878); // Reemplaza con la IP y puerto adecuados ;;
+            await tcpClient.ConnectAsync("192.168.0.104", 8080); // Reemplaza con la IP y puerto adecuados ;;
 
             using NetworkStream stream = tcpClient.GetStream();
 
@@ -56,7 +56,7 @@ class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error al procesar cliente {client.SectionType}: {ex.Message}");
+            Console.WriteLine($"Error al procesar cliente {client.section_type}: {ex.Message}");
         }
     }
 }

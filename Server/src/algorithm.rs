@@ -229,9 +229,9 @@ fn get_zone_available_seats_quantity(zone: &Vec<Vec<Vec<Seat>>>) -> usize {
     return zone
         .iter() // Iterate over the first level (Vec<Vec<Seat>>)
         .map(|sub_vec|
-             sub_vec.iter() // Iterate over the second level (Vec<Seat>)
-                 .map(|inner_vec| inner_vec.len()) // Get the length of each sublist in the third level
-                 .sum::<usize>() // Sum the lengths of all sublist in the second level
+                 sub_vec.iter() // Iterate over the second level (Vec<Seat>)
+                     .map(|inner_vec| inner_vec.len()) // Get the length of each sublist in the third level
+                     .sum::<usize>() // Sum the lengths of all sublist in the second level
         )
         .sum::<usize>() // Sum the lengths obtained from the first level
 }
@@ -268,7 +268,7 @@ fn compare_zones_candidates(stadium: &mut HashMap<String, Zone>, seats_requested
 }
 
 
-pub fn get_best_seats(stadium: &mut HashMap<String, Zone>, zone_requested: String, seats_requested: u8) {
+pub fn get_best_seats(stadium: &mut HashMap<String, Zone>, zone_requested: String, seats_requested: u8) -> Vec<Seat> {
     // This is kindly the main function, is the function that must be called to initiate the algorithm
     let mut best_seats: Vec<Seat> = Vec::new(); // The best seats from the whole zones requested (shaded or sunny)
 
@@ -295,4 +295,5 @@ pub fn get_best_seats(stadium: &mut HashMap<String, Zone>, zone_requested: Strin
             }
         }
     }
+    return best_seats
 }
