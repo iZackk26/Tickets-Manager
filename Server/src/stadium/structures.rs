@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::sync::Arc;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Status {
@@ -14,38 +13,20 @@ impl Default for Status {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Zone {
     pub prop: String,
-    pub categories: Arc<HashMap<char, Category>>,
+    pub categories: HashMap<char, Category>,
 }
 
-impl Zone {
-    pub fn get_categories(&self) -> Arc<HashMap<char, Category>> {
-        Arc::clone(&self.categories)
-    }
-}
-
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Category {
-    pub rows: Arc<HashMap<char, Row>>,
+    pub rows: HashMap<char, Row>,
 }
 
-impl Category {
-    pub fn get_rows(&self) -> Arc<HashMap<char, Row>> {
-        Arc::clone(&self.rows)
-    }
-}
-
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Row {
-    pub seats: Arc<HashMap<u8, Seat>>,
-}
-
-impl Row {
-    pub fn get_seats(&self) -> Arc<HashMap<u8, Seat>> {
-        Arc::clone(&self.seats)
-    }
+    pub seats: HashMap<u8, Seat>,
 }
 
 #[derive(Debug, Default, Clone)]

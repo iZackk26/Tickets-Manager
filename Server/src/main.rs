@@ -15,12 +15,10 @@ mod server;
 
 
 fn main() {
+    let mut stadium : HashMap<String, Zone> = stadium::data::generate_stadium();
+    algorithm::test(&mut stadium);
+
     let priority_queue: Arc<PriorityQueue<Buyer, i8>> = Arc::new(PriorityQueue::new());
-
-    // while let Message::Msg(message, priority) = priority_queue.recv() {
-    //     println!("Processing task: {:?} with priority: {}", message, priority);
-    // }
-
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
 
     for stream in listener.incoming() {
@@ -40,9 +38,4 @@ fn main() {
 
         }
     }
-
-    let mut stadium : HashMap<String, Zone> = stadium::data::generate_stadium();
-
-    //println!("{:?}", stadium.get("north").unwrap().categories.get(&'a').unwrap().rows.get(&'w').unwrap().seats);
-    //algorithm::test(&stadium);
 }

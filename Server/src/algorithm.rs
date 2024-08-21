@@ -3,15 +3,15 @@ use itertools::Itertools;
 use crate::stadium::structures::{Category, Seat, Status, Zone};
 
 
-fn get_zone_available_seats(chosen_zone: &Zone) -> Vec<Vec<Vec<&Seat>>> {
-    let mut zone_available_seats: Vec<Vec<Vec<&Seat>>> = Vec::new();
+fn get_zone_available_seats(chosen_zone: Zone) -> Vec<Vec<Vec<Seat>>> {
+    let mut zone_available_seats: Vec<Vec<Vec<Seat>>> = Vec::new();
     for (category_key, category) in chosen_zone.categories.iter() {
-        let mut category_available_seats: Vec<Vec<&Seat>> = Vec::new();
+        let mut category_available_seats: Vec<Vec<Seat>> = Vec::new();
         for (row_key, row) in category.rows.iter() {
-            let mut row_available_seats: Vec<&Seat> = Vec::new();
+            let mut row_available_seats: Vec<Seat> = Vec::new();
             for (seat_key, seat) in row.seats.iter() {
                 if seat.status == Status::Available {
-                    row_available_seats.push(seat);
+                    row_available_seats.push(seat.clone());
                 }
 
             }
@@ -22,14 +22,21 @@ fn get_zone_available_seats(chosen_zone: &Zone) -> Vec<Vec<Vec<&Seat>>> {
     return zone_available_seats
 }
 
-fn get_zone_candidate() {
-    // AQUI HAY QUE RECORRER CADA SUBLISTA QUE DA LA FUNCION DE ARRIBA Y A CADA UNA APLICARLE UN get_category_cadidate
-    // ADEMAS TENER EN CUENTA EL CASO DE QUE ESTÉ MUY LLENO
+
+fn get_zone_candidate(zone_categories: Vec<Vec<Vec<Seat>>>, seats_quantity: u8) -> Vec<Seat> {
+    let mut zone_candidates: Vec<Vec<Seat>> = Vec::new();
+    for category in zone_categories.iter() {
+        zone_candidates.push(get_category_candidate(category.clone(), seats_quantity));
+    }
+
+    let best_candidate: Vec<Seat> = filter_candidates(zone_candidates);
+    best_candidate
 }
 
-fn get_category_candidate<'a>(category_available_seats: &'a Vec<Vec<&'a Seat>>, seats_quantity: u8) -> Vec<&'a Seat> {
-    let mut category_candidates: Vec<Vec<&'a Seat>> = Vec::new(); // El mejor candidato de cada fila
-    let mut best_candidate: Vec<&'a Seat> = Vec::new(); // El mejor candidato de la categoria
+
+fn get_category_candidate(category_available_seats: Vec<Vec<Seat>>, seats_quantity: u8) -> Vec<Seat> {
+    let mut category_candidates: Vec<Vec<Seat>> = Vec::new(); // El mejor candidato de cada fila
+    let mut best_candidate: Vec<Seat> = Vec::new(); // El mejor candidato de la categoria
     let mut current_category_available_seats: u8 = 0; // La cantidad de asientos disponibles en toda la categoria
 
     // Verifica que la categoria tenga asientos disponibles
@@ -48,24 +55,24 @@ fn get_category_candidate<'a>(category_available_seats: &'a Vec<Vec<&'a Seat>>, 
 
     // Por cada fila, obtiene el mejor candidato de ella (un candidato es un vector de asientos)
     for row in category_available_seats.iter() {
-        let row_candidates = get_row_candidate(row, seats_quantity);
+        let row_candidates = get_row_candidate(row.clone(), seats_quantity);
         category_candidates.push(row_candidates);
     }
 
     // Si no encontro un mejor candidato de ninguna fila (del for anterior se obtiene algo asi: [ [], [], [], []]
     // Hay que hacer una combinacion de los asientos disponibles en toda la categoria y escoger los que tengan mejor visibilidad
     if (category_candidates.iter().all(|sublist| sublist.is_empty())) {
-        let mut all_available_seats: Vec<&Seat> = Vec::new();
+        let mut all_available_seats: Vec<Seat> = Vec::new();
         for row in category_available_seats.iter() {
             for seat in row.iter() {
                 all_available_seats.push(seat.clone()) // fijarse en esto por los clone -------------------------------------------------------------------------------------
             }
         }
 
-        let mut category_general_candidates: Vec<Vec<&Seat>> = Vec::new();
+        let mut category_general_candidates: Vec<Vec<Seat>> = Vec::new();
         for seat in all_available_seats.iter().combinations(seats_quantity as usize) {
-            if seat.iter().all(|&&seat| seat.status == Status::Available) {
-                category_general_candidates.push(seat.into_iter().map(|&seat| seat).collect());
+            if seat.iter().all(|&seat| seat.status == Status::Available) {
+                category_general_candidates.push(seat.into_iter().map(|seat| seat.clone()).collect());
             }
         }
         best_candidate = filter_candidates(category_general_candidates); // Escoge el mejor de todas las combinaciones y retorna
@@ -78,8 +85,8 @@ fn get_category_candidate<'a>(category_available_seats: &'a Vec<Vec<&'a Seat>>, 
     return best_candidate
 }
 
-fn get_row_candidate<'a>(row_available_seats: &'a Vec<&'a Seat>, seats_quantity: u8) -> Vec<&'a Seat> {
-    let mut row_candidate: Vec<&Seat> = Vec::new();
+fn get_row_candidate(row_available_seats: Vec<Seat>, seats_quantity: u8) -> Vec<Seat> {
+    let mut row_candidate: Vec<Seat> = Vec::new();
     let mut current_row_available_seats: u8 = 0;
 
     for seat in row_available_seats.iter() {
@@ -92,10 +99,10 @@ fn get_row_candidate<'a>(row_available_seats: &'a Vec<&'a Seat>, seats_quantity:
         return row_candidate
     }
 
-    let mut row_candidates: Vec<Vec<&Seat>> = Vec::new();
+    let mut row_candidates: Vec<Vec<Seat>> = Vec::new();
     for candidate in row_available_seats.iter().combinations(seats_quantity as usize) {
-        if candidate.iter().all(|&&seat| seat.status == Status::Available) {
-            row_candidates.push(candidate.into_iter().map(|&seat| seat).collect());
+        if candidate.iter().all(|&seat| seat.status == Status::Available) {
+            row_candidates.push(candidate.into_iter().map(|seat| seat.clone()).collect());
         }
     }
 
@@ -103,12 +110,11 @@ fn get_row_candidate<'a>(row_available_seats: &'a Vec<&'a Seat>, seats_quantity:
     return row_candidate
 }
 
-fn filter_candidates(row_candidates: Vec<Vec<&Seat>>) -> Vec<&Seat> {
-    let mut row_candidate: Vec<&Seat> = Vec::new();
+fn filter_candidates(row_candidates: Vec<Vec<Seat>>) -> Vec<Seat> {
+    let mut row_candidate: Vec<Seat> = Vec::new();
 
-    let mut candidates_difference: HashMap<i8, &Vec<&Seat>> = HashMap::new();
+    let mut candidates_difference: HashMap<i8, Vec<Seat>> = HashMap::new();
     for candidate in row_candidates.iter() {
-
         let mut candidates_seats_number: Vec<u8> = Vec::new();
         for seat in candidate.iter() {
             candidates_seats_number.push(seat.number);
@@ -119,27 +125,26 @@ fn filter_candidates(row_candidates: Vec<Vec<&Seat>>) -> Vec<&Seat> {
         for i in 0..candidates_seats_number.len() - 1 {
             seats_difference += (candidates_seats_number[i + 1] as i8 - candidates_seats_number[i] as i8).abs() - 1;
         }
-        candidates_difference.insert(seats_difference, candidate);
+        candidates_difference.insert(seats_difference, candidate.clone());
     }
 
     let mut current_difference: i8 = 11;
     let mut current_candidate_visibility_average: f32 = 0.00;
     for (difference, candidate) in candidates_difference {
-        if (difference < current_difference) {
+        let candidate_visibility_average = get_candidate_visibility_average(candidate.clone());
+        if (difference < current_difference) || (difference == current_difference && candidate_visibility_average > current_candidate_visibility_average) {
             row_candidate = candidate.clone();
             current_difference = difference;
-        } else if (difference == current_difference && get_candidate_visibility_average(candidate) > current_candidate_visibility_average) {
-            row_candidate = candidate.clone();
-            current_candidate_visibility_average = get_candidate_visibility_average(candidate)
+            current_candidate_visibility_average = candidate_visibility_average;
         }
     }
     return row_candidate
 }
 
-fn get_candidate_visibility_average(candidate: &Vec<&Seat>) -> f32 {
+fn get_candidate_visibility_average(candidate: Vec<Seat>) -> f32 {
     let mut candidate_visibility_average: f32 = 0.00;
 
-    for seat in candidate {
+    for seat in &candidate {
         candidate_visibility_average += seat.visibility
     }
 
@@ -148,15 +153,26 @@ fn get_candidate_visibility_average(candidate: &Vec<&Seat>) -> f32 {
 }
 
 
-pub fn test(stadium: & HashMap<String, Zone>) {
+pub fn test(stadium: &mut HashMap<String, Zone>) {
     let user_chosen_zone: String = String::from("shaded"); //sombra
-    let seats_requested: u8 = 5;
+    let seats_requested: u8 = 3;
     if (user_chosen_zone == "shaded") {
-        let north_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("north").unwrap());
-        let candidate = (&north_zone_candidates[0], seats_requested);
+        if let Some(north_zone) = stadium.get_mut("north") {
+            if let Some(category) = north_zone.categories.get_mut(&'a') {
+                if let Some(row) = category.rows.get_mut(&'w') {
+                    if let Some(seat) = row.seats.get_mut(&1) {
+                        seat.status = Status::Purchased;
+                    }
+                }
+            }
+        }
+        //println!("{:#?}", stadium.get("north").unwrap().categories.get(&'a').unwrap().rows.get(&'w').unwrap().seats.get(&1).unwrap());
+        let north_zone_candidates : Vec<Vec<Vec<Seat>>> = get_zone_available_seats(stadium.get("north").unwrap().clone());
+        //println!("{:#?}", get_row_candidate(north_zone_candidates[0][0].clone(), seats_requested));
+        println!("{:#?}", get_zone_candidate(north_zone_candidates, seats_requested))
         //let south_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("south").unwrap());
     } else {
-        let east_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("east").unwrap());
-        let west_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("west").unwrap());
+        //let east_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("east").unwrap());
+        //let west_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("west").unwrap());
     }
 }
