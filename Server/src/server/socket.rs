@@ -1,9 +1,10 @@
 use std::collections::HashMap;
+use std::io::{self, Read, Write};
 use tokio::io::AsyncReadExt;
 use std::net::{TcpListener, TcpStream};
 use crate::server::Buyer::Buyer;
 
-pub fn handle_client(mut stream: TcpStream){
+pub fn handle_client(mut stream: TcpStream) {
     let mut buffer = [0; 512];
     loop {
         match stream.read(&mut buffer) {
