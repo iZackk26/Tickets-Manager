@@ -223,36 +223,62 @@ fn modify_seats_status(stadium: &mut HashMap<String, Zone>, candidate: Vec<Seat>
         }
     }
 }
-pub fn get_best_seats(stadium: &mut HashMap<String, Zone>, zone_requested: String, seats_requested: u8) {
-    if (zone_requested == "shaded") {
-        //println!("{:#?}", stadium.get("north").unwrap().categories.get(&'a').unwrap().rows.get(&'w').unwrap().seats.get(&1).unwrap());
-        let north_zone_candidates : Vec<Vec<Vec<Seat>>> = get_zone_available_seats(stadium.get("north").unwrap().clone());
-        //println!("{:#?}", get_row_candidate(north_zone_candidates[0][0].clone(), seats_requested));
-        let north_candidate: Vec<Seat> = get_zone_candidate(north_zone_candidates, seats_requested);
-        println!("{:?}", north_candidate);
-        modify_seats_status(stadium, north_candidate.clone(), Status::Reserved);
-        for seat in &north_candidate {
-            println!(
-                "{:#?}",
-                stadium
-                    .get(&seat.zone)
-                    .unwrap()
-                    .categories
-                    .get(&seat.category)
-                    .unwrap()
-                    .rows
-                    .get(&seat.row)
-                    .unwrap()
-                    .seats
-                    .get(&seat.number)
-                    .unwrap()
-            );
-        }
 
-        //println!("{:#?}", north_candidate_reference);
-        //let south_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("south").unwrap());
+fn get_zone_available_seats_quantity(zone: &Vec<Vec<Vec<Seat>>>) -> usize {
+    // This function gets the quantity of available seats (from a zone)
+    return zone
+        .iter() // Iterate over the first level (Vec<Vec<Seat>>)
+        .map(|sub_vec|
+                 sub_vec.iter() // Iterate over the second level (Vec<Seat>)
+                     .map(|inner_vec| inner_vec.len()) // Get the length of each sublist in the third level
+                     .sum::<usize>() // Sum the lengths of all sublist in the second level
+        )
+        .sum::<usize>() // Sum the lengths obtained from the first level
+}
+
+fn compare_zones_candidates(stadium: &mut HashMap<String, Zone>, seats_requested: u8, first_zone: String, second_zone: String) -> Vec<Seat> {
+    // This function compares the candidates of two zones and returns the best candidate at all
+    let mut zones_candidates: Vec<Vec<Seat>> = Vec::new(); // Stores the best seat candidates from each zone
+    let mut best_seats: Vec<Seat> = Vec::new(); // Stores the final best seats selected from the candidates
+
+    // Retrieve available seats for both zones
+    let first_zone_candidates: Vec<Vec<Vec<Seat>>> = get_zone_available_seats(stadium.get(&first_zone).unwrap().clone());
+    let second_zone_candidates: Vec<Vec<Vec<Seat>>> = get_zone_available_seats(stadium.get(&second_zone).unwrap().clone());
+
+    // Compute the total number of available seats in each zone
+    let first_zone_length: usize = get_zone_available_seats_quantity(&first_zone_candidates);
+    let second_zone_length: usize = get_zone_available_seats_quantity(&second_zone_candidates);
+
+    // Get the best candidate seats from each zone
+    let best_first_zone_candidate: Vec<Seat> = get_zone_candidate(first_zone_candidates.clone(), seats_requested);
+    let best_second_zone_candidate: Vec<Seat> = get_zone_candidate(second_zone_candidates.clone(), seats_requested);
+
+    // Compare the total number of available seats in each zone and store candidates accordingly
+    if first_zone_length > second_zone_length {
+        zones_candidates.push(best_second_zone_candidate); // Add the second zone's best candidate if it has fewer available seats
+        zones_candidates.push(best_first_zone_candidate); // Add the first zone's best candidate if it has more available seats
     } else {
-        //let east_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("east").unwrap());
-        //let west_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("west").unwrap());
+        zones_candidates.push(best_first_zone_candidate); // Add the first zone's best candidate if it has fewer available seats
+        zones_candidates.push(best_second_zone_candidate); // Add the second zone's best candidate if it has more available seats
     }
+
+    // Filter the candidates to select the best option from both zones
+    best_seats = filter_candidates(zones_candidates);
+    return best_seats; // Return the final best seats
+}
+
+
+pub fn get_best_seats(stadium: &mut HashMap<String, Zone>, zone_requested: String, seats_requested: u8) -> Vec<Seat> {
+    // This is kindly the main function, is the function that must be called to initiate the algorithm
+    let mut best_seats: Vec<Seat> = Vec::new(); // The best seats from the whole zones requested (shaded or sunny)
+
+    // If the user selected shaded, it will search for seats in the North and South zones
+    if (zone_requested == "shaded") {
+        best_seats = compare_zones_candidates(stadium, seats_requested, "north".to_string(), "south".to_string())
+    } else { // If the user selected sunny, it will search for seats in the East and West zones
+        best_seats = compare_zones_candidates(stadium, seats_requested, "east".to_string(), "west".to_string())
+    }
+
+    println!("Best seats: {:#?}", best_seats);
+    return best_seats
 }

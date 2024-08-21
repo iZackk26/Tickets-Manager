@@ -8,26 +8,25 @@
     "net8.0": []
   },
   "packageFolders": {
-    "C:\\Users\\Akhoz\\.nuget\\packages\\": {}
+    "/Users/izack/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Akhoz\\Desktop\\Akhoz\\TEC\\Semestre-IV\\Lenguajes-Programacion\\Proyectos\\Proyecto-I\\Tickets-Manager\\Client\\Client\\Client.csproj",
+      "projectUniqueName": "/Users/izack/Tec/Lenguajes/Rust/Tickets-Manager/Client/Client/Client.csproj",
       "projectName": "Client",
-      "projectPath": "C:\\Users\\Akhoz\\Desktop\\Akhoz\\TEC\\Semestre-IV\\Lenguajes-Programacion\\Proyectos\\Proyecto-I\\Tickets-Manager\\Client\\Client\\Client.csproj",
-      "packagesPath": "C:\\Users\\Akhoz\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Akhoz\\Desktop\\Akhoz\\TEC\\Semestre-IV\\Lenguajes-Programacion\\Proyectos\\Proyecto-I\\Tickets-Manager\\Client\\Client\\obj\\",
+      "projectPath": "/Users/izack/Tec/Lenguajes/Rust/Tickets-Manager/Client/Client/Client.csproj",
+      "packagesPath": "/Users/izack/.nuget/packages/",
+      "outputPath": "/Users/izack/Tec/Lenguajes/Rust/Tickets-Manager/Client/Client/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Akhoz\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/Users/izack/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {}
+        "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
@@ -65,7 +64,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/Users/izack/.dotnet/sdk/8.0.303/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

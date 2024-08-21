@@ -1,9 +1,13 @@
 use serde::{Deserialize, Serialize};
+use std::net::TcpStream;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Buyer {
-    pub SectionType: String,
-    pub Quantity: i8,
-    pub ResponseTime: u32,
-    pub Response: bool,
+    pub section_type: String,
+    pub quantity: i8,
+    pub response_time: u32,
+    pub response: bool,
+    // Never serialized.
+    #[serde(skip_serializing, skip_deserializing)]
+    pub conection: Option<TcpStream>
 }

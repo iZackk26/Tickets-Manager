@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::io::Write;
 use std::net::TcpListener;
 use std::ops::Deref;
 use std::sync::{Arc, Mutex};
@@ -7,6 +8,7 @@ use std::thread;
 use crate::server::socket::handle_client;
 use crate::stadium::structures::{Status, Zone};
 use mpmcpq::{PriorityQueue, Stash, Message};
+use crate::algorithm::get_best_seats;
 use crate::server::Buyer::Buyer;
 
 mod stadium;
@@ -16,7 +18,7 @@ mod server;
 
 fn main() {
     let mut stadium : HashMap<String, Zone> = stadium::data::generate_stadium();
-    algorithm::get_best_seats(&mut stadium, "shaded".to_string(), 3);
+    //algorithm::get_best_seats(&mut stadium, "shaded".to_string(), 3);
 
     let priority_queue: Arc<PriorityQueue<Buyer, i8>> = Arc::new(PriorityQueue::new());
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
@@ -26,8 +28,8 @@ fn main() {
     // Hilo que procesa los datos de la PriorityQueue
     let pq = Arc::clone(&priority_queue);
     thread::spawn( move || {
-        while let Message::Msg(message, priority)= pq.recv() {
-            println!("{:?}", message);
+        while let Message::Msg(buyer, priority)= pq.recv() {
+            //println!("{:?}", buyer.conection.unwrap().write("HOLAAA".as_bytes()));
         }
     });
 
@@ -37,7 +39,7 @@ fn main() {
                 let priority_queue = Arc::clone(&priority_queue);
                 thread::spawn(move || {
                     if let Ok(buyer) = handle_client(stream) {
-                        let priority: i8 = buyer.Quantity.clone();
+                        let priority: i8 = buyer.quantity.clone();
                         priority_queue.send_nostash(buyer, priority);
                     }
                 });

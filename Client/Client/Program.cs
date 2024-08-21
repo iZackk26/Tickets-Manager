@@ -56,7 +56,7 @@ class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error al procesar cliente {client.SectionType}: {ex.Message}");
+            Console.WriteLine($"Error al procesar cliente {client.section_type}: {ex.Message}");
         }
     }
 }
