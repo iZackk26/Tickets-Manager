@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use itertools::Itertools;
 use crate::stadium::structures::{Category, Seat, Status, Zone};
-
+use crate::stadium::structures::Status::Reserved;
 
 fn get_zone_available_seats(chosen_zone: Zone) -> Vec<Vec<Vec<Seat>>> {
     // This is the first function executed in the algorithm, it retrieves all available seats in the zone (North, South, East, or West)
@@ -268,17 +268,31 @@ fn compare_zones_candidates(stadium: &mut HashMap<String, Zone>, seats_requested
 }
 
 
-pub fn get_best_seats(stadium: &mut HashMap<String, Zone>, zone_requested: String, seats_requested: u8) -> Vec<Seat> {
+pub fn get_best_seats(stadium: &mut HashMap<String, Zone>, zone_requested: String, seats_requested: u8) {
     // This is kindly the main function, is the function that must be called to initiate the algorithm
     let mut best_seats: Vec<Seat> = Vec::new(); // The best seats from the whole zones requested (shaded or sunny)
 
     // If the user selected shaded, it will search for seats in the North and South zones
     if (zone_requested == "shaded") {
-        best_seats = compare_zones_candidates(stadium, seats_requested, "north".to_string(), "south".to_string())
+        best_seats = compare_zones_candidates(stadium, seats_requested, "north".to_string(), "south".to_string());
+        modify_seats_status(stadium, best_seats.clone(), Status::Reserved) // Changes the status to reserved
     } else { // If the user selected sunny, it will search for seats in the East and West zones
-        best_seats = compare_zones_candidates(stadium, seats_requested, "east".to_string(), "west".to_string())
+        best_seats = compare_zones_candidates(stadium, seats_requested, "east".to_string(), "west".to_string());
+        modify_seats_status(stadium, best_seats.clone(), Status::Reserved) // Changes the status to reserved
     }
 
-    println!("Best seats: {:#?}", best_seats);
-    return best_seats
+    // Prints the modified seats from the original stadium
+    for (zone_key, zone) in stadium.iter() {
+        for (category_key, category) in zone.categories.iter() {
+            let mut category_available_seats: Vec<Vec<Seat>> = Vec::new();
+            for (row_key, row) in category.rows.iter() {
+                let mut row_available_seats: Vec<Seat> = Vec::new();
+                for (seat_key, seat) in row.seats.iter() {
+                    if seat.status == Status::Reserved {
+                        println!("{:#?}", seat)
+                    }
+                }
+            }
+        }
+    }
 }
