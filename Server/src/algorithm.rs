@@ -28,9 +28,10 @@ fn get_zone_candidate(zone_categories: Vec<Vec<Vec<Seat>>>, seats_quantity: u8) 
     for category in zone_categories.iter() {
         zone_candidates.push(get_category_candidate(category.clone(), seats_quantity));
     }
-
+    println!("{:?}", zone_candidates);
     let best_candidate: Vec<Seat> = filter_candidates(zone_candidates);
-    best_candidate
+    println!("\n \n{:?}", best_candidate);
+    return best_candidate
 }
 
 
@@ -109,36 +110,30 @@ fn get_row_candidate(row_available_seats: Vec<Seat>, seats_quantity: u8) -> Vec<
     row_candidate = filter_candidates(row_candidates);
     return row_candidate
 }
+fn filter_candidates(candidates_to_compare: Vec<Vec<Seat>>) -> Vec<Seat> {
+    let mut best_candidate: Vec<Seat> = Vec::new();
+    let mut current_difference: i8 = 11;
+    let mut current_candidate_visibility_average: f32 = 0.00;
 
-fn filter_candidates(row_candidates: Vec<Vec<Seat>>) -> Vec<Seat> {
-    let mut row_candidate: Vec<Seat> = Vec::new();
-
-    let mut candidates_difference: HashMap<i8, Vec<Seat>> = HashMap::new();
-    for candidate in row_candidates.iter() {
-        let mut candidates_seats_number: Vec<u8> = Vec::new();
-        for seat in candidate.iter() {
-            candidates_seats_number.push(seat.number);
-        }
+    for candidate in candidates_to_compare.iter() {
+        let mut candidates_seats_number: Vec<u8> = candidate.iter().map(|seat| seat.number).collect();
         candidates_seats_number.sort();
 
         let mut seats_difference: i8 = 0;
         for i in 0..candidates_seats_number.len() - 1 {
             seats_difference += (candidates_seats_number[i + 1] as i8 - candidates_seats_number[i] as i8).abs() - 1;
         }
-        candidates_difference.insert(seats_difference, candidate.clone());
-    }
 
-    let mut current_difference: i8 = 11;
-    let mut current_candidate_visibility_average: f32 = 0.00;
-    for (difference, candidate) in candidates_difference {
         let candidate_visibility_average = get_candidate_visibility_average(candidate.clone());
-        if (difference < current_difference) || (difference == current_difference && candidate_visibility_average > current_candidate_visibility_average) {
-            row_candidate = candidate.clone();
-            current_difference = difference;
+
+        if (seats_difference < current_difference) || (seats_difference == current_difference && candidate_visibility_average > current_candidate_visibility_average) {
+            best_candidate = candidate.clone();
+            current_difference = seats_difference;
             current_candidate_visibility_average = candidate_visibility_average;
         }
     }
-    return row_candidate
+
+    return best_candidate;
 }
 
 fn get_candidate_visibility_average(candidate: Vec<Seat>) -> f32 {
@@ -159,7 +154,6 @@ fn modify_seats_status(stadium: &mut HashMap<String, Zone>, candidate: Vec<Seat>
                 if let Some(row) = category.rows.get_mut(&seat.row) {
                     if let Some(seat_reference) = row.seats.get_mut(&seat.number) {
                         seat_reference.status = new_status;
-                        println!("Function {:?}", seat_reference)
                     }
                 }
             }
@@ -169,7 +163,7 @@ fn modify_seats_status(stadium: &mut HashMap<String, Zone>, candidate: Vec<Seat>
 
 pub fn get_best_seats(stadium: &mut HashMap<String, Zone>) {
     let user_chosen_zone: String = String::from("shaded"); //sombra
-    let seats_requested: u8 = 3;
+    let seats_requested: u8 = 1;
     if (user_chosen_zone == "shaded") {
         //println!("{:#?}", stadium.get("north").unwrap().categories.get(&'a').unwrap().rows.get(&'w').unwrap().seats.get(&1).unwrap());
         let north_zone_candidates : Vec<Vec<Vec<Seat>>> = get_zone_available_seats(stadium.get("north").unwrap().clone());
@@ -194,7 +188,7 @@ pub fn get_best_seats(stadium: &mut HashMap<String, Zone>) {
                     .unwrap()
             );
         }
-        
+
         //println!("{:#?}", north_candidate_reference);
         //let south_zone_candidates : Vec<Vec<Vec<&Seat>>> = get_zone_available_seats(stadium.get("south").unwrap());
     } else {
