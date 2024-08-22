@@ -1,6 +1,7 @@
 use std::collections::HashMap;
+use serde::Serialize;
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, Serialize)]
 pub enum Status {
     Purchased,
     Reserved,
@@ -29,7 +30,7 @@ pub struct Row {
     pub seats: HashMap<u8, Seat>,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Serialize)]
 pub struct Seat {
     pub zone: String,
     pub category: char,

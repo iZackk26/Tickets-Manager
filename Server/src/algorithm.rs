@@ -167,27 +167,29 @@ fn filter_candidates(candidates_to_compare: Vec<Vec<Seat>>) -> Vec<Seat> {
 
         // Now it sums the seat difference between the seats in the set, going from left to right
         let mut seats_difference: i8 = 0;
-        for i in 0..candidates_seats_number.len() - 1 {
+
+        if candidates_seats_number.len() > 0 {
+             for i in 0..candidates_seats_number.len() - 1 {
             // The formula takes the absolute value (to always get a positive number) of the difference between the two seats minus one
             // This is done because, for example, the difference between seats 3 and 5 is just one seat (4), but their difference is 2
             // So one is subtracted, and the absolute value is taken as a precaution (it should always be positive, but this is safer)
             seats_difference += (candidates_seats_number[i + 1] as i8 - candidates_seats_number[i] as i8).abs() - 1;
-        }
+            }
 
-        // Gets the visibility percentage of the current set of seats
-        let candidate_visibility_average = get_candidate_visibility_average(candidate.clone());
+            // Gets the visibility percentage of the current set of seats
+            let candidate_visibility_average = get_candidate_visibility_average(candidate.clone());
 
-        // Now it performs two comparisons: if the seat difference is less than the current seat difference (i.e., the seats are closer together),
-        // it directly accepts the change and takes the new set as the best option so far
-        // But if the difference is the same, it keeps the set with the better visibility percentage. In other words, it chooses the closest seats with the best visibility
-        if (seats_difference < current_difference) || (seats_difference == current_difference && candidate_visibility_average > current_candidate_visibility_average) {
-            // This makes the candidate change if the conditions are met
-            best_candidate = candidate.clone();
-            current_difference = seats_difference;
-            current_candidate_visibility_average = candidate_visibility_average;
+            // Now it performs two comparisons: if the seat difference is less than the current seat difference (i.e., the seats are closer together),
+            // it directly accepts the change and takes the new set as the best option so far
+            // But if the difference is the same, it keeps the set with the better visibility percentage. In other words, it chooses the closest seats with the best visibility
+            if (seats_difference < current_difference) || (seats_difference == current_difference && candidate_visibility_average > current_candidate_visibility_average) {
+                // This makes the candidate change if the conditions are met
+                best_candidate = candidate.clone();
+                current_difference = seats_difference;
+                current_candidate_visibility_average = candidate_visibility_average;
+            }
         }
     }
-
     return best_candidate;
 }
 
@@ -268,7 +270,7 @@ fn compare_zones_candidates(stadium: &mut HashMap<String, Zone>, seats_requested
 }
 
 
-pub fn get_best_seats(stadium: &mut HashMap<String, Zone>, zone_requested: String, seats_requested: u8) -> Vec<Seat> {
+pub fn get_best_seats(stadium: &mut HashMap<String, Zone>, zone_requested: &String, seats_requested: u8) -> Vec<Seat> {
     // This is kindly the main function, is the function that must be called to initiate the algorithm
     let mut best_seats: Vec<Seat> = Vec::new(); // The best seats from the whole zones requested (shaded or sunny)
 
@@ -279,21 +281,6 @@ pub fn get_best_seats(stadium: &mut HashMap<String, Zone>, zone_requested: Strin
     } else { // If the user selected sunny, it will search for seats in the East and West zones
         best_seats = compare_zones_candidates(stadium, seats_requested, "east".to_string(), "west".to_string());
         modify_seats_status(stadium, best_seats.clone(), Status::Reserved) // Changes the status to reserved
-    }
-
-    // Prints the modified seats from the original stadium
-    for (zone_key, zone) in stadium.iter() {
-        for (category_key, category) in zone.categories.iter() {
-            let mut category_available_seats: Vec<Vec<Seat>> = Vec::new();
-            for (row_key, row) in category.rows.iter() {
-                let mut row_available_seats: Vec<Seat> = Vec::new();
-                for (seat_key, seat) in row.seats.iter() {
-                    if seat.status == Status::Reserved {
-                        println!("{:#?}", seat)
-                    }
-                }
-            }
-        }
     }
     return best_seats
 }
