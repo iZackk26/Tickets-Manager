@@ -15,11 +15,6 @@ mod stadium;
 mod algorithm;
 mod server;
 
-fn process_order(buyer: &Buyer, stadium: &mut HashMap<String, Zone>) -> Vec<Seat> {
-    let seat: Vec<Seat> = get_best_seats(stadium, &buyer.section_type, buyer.quantity as u8);
-    return seat
-
-}
 
 fn main() {
     let mut stadium: HashMap<String, Zone> = stadium::data::generate_stadium();
@@ -39,7 +34,16 @@ fn main() {
                 Message::Msg(buyer, priority) => {
                     let seats: Vec<Seat> = get_best_seats(&mut stadium, &buyer.section_type, buyer.quantity as u8);
                     let mut con = buyer.conection.unwrap();
-                    con.write(serde_json::to_string(&seats).unwrap().as_bytes());
+                    //con.write(serde_json::to_string(&seats).unwrap().as_bytes());
+
+                    match serde_json::to_string(&seats) {
+                        Ok(seats) => {
+                            con.write(&seats.as_bytes());
+                        }
+                        Err(e) => {
+                            println!("{:?}", e)
+                        }
+                    }
                     con.shutdown(Shutdown::Both).unwrap();
                 }
                 Message::Drained => {
