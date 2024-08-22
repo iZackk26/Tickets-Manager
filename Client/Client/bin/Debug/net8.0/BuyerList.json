@@ -13,7 +13,19 @@
   },
   {
     "section_type": "shaded",
+    "quantity": 5,
+    "response_time": 8,
+    "response": true
+  },
+  {
+    "section_type": "shaded",
     "quantity": 4,
+    "response_time": 8,
+    "response": true
+  },
+  {
+    "section_type": "shaded",
+    "quantity": 5,
     "response_time": 8,
     "response": true
   }

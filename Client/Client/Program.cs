@@ -36,7 +36,11 @@ class Program
         try
         {
             // Conecta al servidor Rust
+<<<<<<< HEAD
             await tcpClient.ConnectAsync("198.168.0.104", 8080); // Reemplaza con la IP y puerto adecuados ;;
+=======
+            await tcpClient.ConnectAsync("192.168.0.104", 8080); // Reemplaza con la IP y puerto adecuados ;;
+>>>>>>> 03f089ac54ab272212f15c428bdd09c099ac1ea0
 
             using NetworkStream stream = tcpClient.GetStream();
 

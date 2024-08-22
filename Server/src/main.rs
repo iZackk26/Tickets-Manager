@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::io::Write;
-use std::net::TcpListener;
+use std::net::{Shutdown, TcpListener};
 use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -15,36 +15,59 @@ mod stadium;
 mod algorithm;
 mod server;
 
-fn process_order(buyer: Buyer, stadium: &mut HashMap<String, Zone>){
-    let seat: Vec<Seat> = get_best_seats(stadium, buyer.section_type, buyer.quantity as u8);
-
-}
 
 fn main() {
     let mut stadium: HashMap<String, Zone> = stadium::data::generate_stadium();
     //algorithm::get_best_seats(&mut stadium, "shaded".to_string(), 3);
 
     let priority_queue: Arc<PriorityQueue<Buyer, i8>> = Arc::new(PriorityQueue::new());
+<<<<<<< HEAD
     let listener = TcpListener::bind("127.0.0.1:8080").unwrap();
+=======
+    let listener = TcpListener::bind("192.168.0.104:8080").unwrap();
+>>>>>>> 03f089ac54ab272212f15c428bdd09c099ac1ea0
     println!("Server listening on port 7878");
+
 
 
     // Hilo que procesa los datos de la PriorityQueue
     let pq = Arc::clone(&priority_queue);
     thread::spawn( move || {
-        while let Message::Msg(buyer, priority)= pq.recv() {
-            //println!("{:?}", buyer.conection.unwrap().write("HOLAAA".as_bytes()));
-            process_order(buyer, &mut stadium);
+        loop {
+            match pq.recv() {
+                Message::Msg(buyer, priority) => {
+                    let seats: Vec<Seat> = get_best_seats(&mut stadium, &buyer.section_type, buyer.quantity as u8);
+                    let mut con = buyer.conection.unwrap();
+                    //con.write(serde_json::to_string(&seats).unwrap().as_bytes());
 
+                    match serde_json::to_string(&seats) {
+                        Ok(seats) => {
+                            con.write(&seats.as_bytes());
+                        }
+                        Err(e) => {
+                            println!("{:?}", e)
+                        }
+                    }
+                    con.shutdown(Shutdown::Both).unwrap();
+                }
+                Message::Drained => {
+                    println!("Drained")
+                }
+                Message::Taken => {
+                    println!("Taken")
+                }
+            }
         }
     });
 
     for stream in listener.incoming() {
         match stream {
             Ok(stream) => {
+                println!("Peticion Recibida {:?}", stream.peer_addr());
                 let priority_queue = Arc::clone(&priority_queue);
                 thread::spawn(move || {
                     if let Ok(buyer) = handle_client(stream) {
+                        println!("Print 1er hilo");
                         let priority: i8 = -buyer.quantity.clone();
                         priority_queue.send_nostash(buyer, priority);
                     }
