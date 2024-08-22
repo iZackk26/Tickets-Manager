@@ -30,6 +30,7 @@ C:/Users/iZack/Languages/Rust/Tickets-Manager/Client/Client/bin/Debug/net8.0/Buy
 /Users/izack/Tec/Lenguajes/Rust/Tickets-Manager/Client/Client/obj/Debug/net8.0/Client.pdb
 /Users/izack/Tec/Lenguajes/Rust/Tickets-Manager/Client/Client/obj/Debug/net8.0/Client.genruntimeconfig.cache
 /Users/izack/Tec/Lenguajes/Rust/Tickets-Manager/Client/Client/obj/Debug/net8.0/ref/Client.dll
+<<<<<<< HEAD
 C:\Users\iZack\Languages\Rust\Tickets-Manager\Client\Client\bin\Debug\net8.0\BuyerList.json
 C:\Users\iZack\Languages\Rust\Tickets-Manager\Client\Client\bin\Debug\net8.0\Client.exe
 C:\Users\iZack\Languages\Rust\Tickets-Manager\Client\Client\bin\Debug\net8.0\Client.deps.json
@@ -46,3 +47,21 @@ C:\Users\iZack\Languages\Rust\Tickets-Manager\Client\Client\obj\Debug\net8.0\ref
 C:\Users\iZack\Languages\Rust\Tickets-Manager\Client\Client\obj\Debug\net8.0\Client.pdb
 C:\Users\iZack\Languages\Rust\Tickets-Manager\Client\Client\obj\Debug\net8.0\Client.genruntimeconfig.cache
 C:\Users\iZack\Languages\Rust\Tickets-Manager\Client\Client\obj\Debug\net8.0\ref\Client.dll
+=======
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\bin\Debug\net8.0\BuyerList.json
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\bin\Debug\net8.0\Client.exe
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\bin\Debug\net8.0\Client.deps.json
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\bin\Debug\net8.0\Client.runtimeconfig.json
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\bin\Debug\net8.0\Client.dll
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\bin\Debug\net8.0\Client.pdb
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\obj\Debug\net8.0\Client.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\obj\Debug\net8.0\Client.AssemblyInfoInputs.cache
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\obj\Debug\net8.0\Client.AssemblyInfo.cs
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\obj\Debug\net8.0\Client.csproj.CoreCompileInputs.cache
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\obj\Debug\net8.0\Client.sourcelink.json
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\obj\Debug\net8.0\Client.dll
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\obj\Debug\net8.0\refint\Client.dll
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\obj\Debug\net8.0\Client.pdb
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\obj\Debug\net8.0\Client.genruntimeconfig.cache
+C:\Users\Akhoz\Desktop\Akhoz\TEC\Semestre-IV\Lenguajes-Programacion\Proyectos\Proyecto-I\Tickets-Manager\Client\Client\obj\Debug\net8.0\ref\Client.dll
+>>>>>>> 896bc22ccd2bb367545bae765744b900e698b116
