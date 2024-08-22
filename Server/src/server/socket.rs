@@ -1,7 +1,7 @@
 
 use std::net::{TcpListener, TcpStream};
 use std::io::{self, Read, Write}; // Asegúrate de que `Read` está importado
-use crate::server::Buyer::Buyer;
+use crate::server::buyer::Buyer;
 
 pub fn handle_client(mut stream: TcpStream) -> Result<Buyer, Box<dyn std::error::Error>>{
     let mut buffer = [0; 512];
