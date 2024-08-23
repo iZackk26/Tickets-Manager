@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use rand::Rng;
 use itertools::Itertools;
 use crate::stadium::structures::{Category, Seat, Status, Zone};
 use crate::stadium::structures::Status::Reserved;
@@ -207,7 +208,7 @@ fn get_candidate_visibility_average(candidate: Vec<Seat>) -> f32 {
     return candidate_visibility_average;
 }
 
-fn modify_seats_status(stadium: &mut HashMap<String, Zone>, candidate: Vec<Seat>, new_status: Status) {
+pub fn modify_seats_status(stadium: &mut HashMap<String, Zone>, candidate: Vec<Seat>, new_status: Status) {
     // This function modifies the status of the seats passed as a parameter
     // It receives a mutable reference to the stadium to make changes directly to the stadium
     // In other words, it changes the original seats. The function iterates through the stadium using keys
@@ -238,6 +239,30 @@ fn get_zone_available_seats_quantity(zone: &Vec<Vec<Vec<Seat>>>) -> usize {
         .sum::<usize>() // Sum the lengths obtained from the first level
 }
 
+fn get_seats_in_different_zones(first_zone_candidates: Vec<Vec<Vec<Seat>>>, second_zone_candidates: Vec<Vec<Vec<Seat>>>, seats_quantity: u8) -> Vec<Seat> {
+    // This function gets candidates in different zones, is used only if the stadium is almost filled
+    let mut available_seats: Vec<Seat> = Vec::new();
+
+    // First stores all available seats (in both zones) in a vector
+    for (first_category, second_category) in first_zone_candidates.into_iter().zip(second_zone_candidates.into_iter()) {
+        for (first_row, second_row) in first_category.into_iter().zip(second_category.into_iter()) {
+            for seat in first_row {
+                available_seats.push(seat);
+            }
+            for seat in second_row {
+                available_seats.push(seat);
+            }
+        }
+    }
+
+    // Then, gets the best candidate by using combinations
+    let candidates: Vec<Vec<Seat>> = get_available_combinations(available_seats, seats_quantity as usize);
+
+    // From all the obtained combinations of seats, selects the best one, which will be the candidate for both zones
+    let best_candidate: Vec<Seat> = filter_candidates(candidates);
+    return best_candidate
+}
+
 fn compare_zones_candidates(stadium: &mut HashMap<String, Zone>, seats_requested: u8, first_zone: String, second_zone: String) -> Vec<Seat> {
     // This function compares the candidates of two zones and returns the best candidate at all
     let mut zones_candidates: Vec<Vec<Seat>> = Vec::new(); // Stores the best seat candidates from each zone
@@ -255,6 +280,13 @@ fn compare_zones_candidates(stadium: &mut HashMap<String, Zone>, seats_requested
     let best_first_zone_candidate: Vec<Seat> = get_zone_candidate(first_zone_candidates.clone(), seats_requested);
     let best_second_zone_candidate: Vec<Seat> = get_zone_candidate(second_zone_candidates.clone(), seats_requested);
 
+    // If both best candidates are empty, the algorithm will get the best seats by mixing the zones
+    // So this make possible to get a candidate like this [North, South, North], for example
+    if best_first_zone_candidate.is_empty() && best_second_zone_candidate.is_empty() {
+        best_seats = get_seats_in_different_zones(first_zone_candidates, second_zone_candidates, seats_requested);
+        return best_seats
+    }
+
     // Compare the total number of available seats in each zone and store candidates accordingly
     if first_zone_length > second_zone_length {
         zones_candidates.push(best_second_zone_candidate); // Add the second zone's best candidate if it has fewer available seats
@@ -267,6 +299,44 @@ fn compare_zones_candidates(stadium: &mut HashMap<String, Zone>, seats_requested
     // Filter the candidates to select the best option from both zones
     best_seats = filter_candidates(zones_candidates);
     return best_seats; // Return the final best seats
+}
+
+pub fn fill_stadium(stadium: &mut HashMap<String, Zone>, fill_percentage: f32) {
+    // This function fills up the stadium according to a fill percentage given
+    let mut seats_quantity: u16 = 0; // This number represents the seats quantity that must be "purchased" to fill the stadium
+    let mut purchased_seats_quantity: u16 = 0; // This number will be the quantity of "purchased seats" so far
+
+    // This loop gets the total number of seats in the stadium
+    for (zone_key, zone) in stadium.clone() {
+        let zone_seats = get_zone_available_seats(zone);
+        seats_quantity += get_zone_available_seats_quantity(&zone_seats) as u16;
+    }
+
+    // Calculate the number of seats that need to be filled to meet the fill percentage
+    seats_quantity = (seats_quantity as f32 * fill_percentage).round() as u16;
+
+    let mut rng = rand::thread_rng(); // Random number generator
+
+    // While the current number of "purchased" seats is less than the target
+    // It will iterate through the entire stadium, filling seats randomly
+    while purchased_seats_quantity < seats_quantity {
+        for (zone_key, zone) in stadium.clone() {
+            let zone_seats = get_zone_available_seats(zone);
+            for category in zone_seats {
+                for row in category {
+                    for seat in row {
+                        // Generate a random number, 0 or 1
+                        let random_number: u8 = rng.gen_range(0..=1);
+                        // If the random number is 1 and the number of "purchased seats" so far has not exceeded the target, mark the seat as purchased
+                        if (random_number == 1 && purchased_seats_quantity < seats_quantity) {
+                            modify_seats_status(stadium, vec![seat], Status::Purchased);
+                            purchased_seats_quantity += 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 

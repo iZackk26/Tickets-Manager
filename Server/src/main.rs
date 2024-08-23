@@ -8,7 +8,7 @@ use std::thread;
 use crate::server::socket::handle_client;
 use crate::stadium::structures::{Seat, Status, Zone};
 use mpmcpq::{PriorityQueue, Stash, Message};
-use crate::algorithm::get_best_seats;
+use crate::algorithm::{fill_stadium, get_best_seats};
 use crate::server::buyer::Buyer;
 
 mod stadium;
@@ -18,15 +18,12 @@ mod server;
 
 fn main() {
     let mut stadium: HashMap<String, Zone> = stadium::data::generate_stadium();
-    //algorithm::get_best_seats(&mut stadium, "shaded".to_string(), 3);
+    fill_stadium(&mut stadium, 0.0);
+    //println!("{:?}", algorithm::get_best_seats(&mut stadium, &"shaded".to_string(), 3));
 
     let priority_queue: Arc<PriorityQueue<Buyer, i8>> = Arc::new(PriorityQueue::new());
-<<<<<<< HEAD
     let listener = TcpListener::bind("127.0.0.1:8080").unwrap();
-=======
-    let listener = TcpListener::bind("192.168.0.104:8080").unwrap();
->>>>>>> 03f089ac54ab272212f15c428bdd09c099ac1ea0
-    println!("Server listening on port 7878");
+    println!("Server listening on port 8080");
 
 
 
