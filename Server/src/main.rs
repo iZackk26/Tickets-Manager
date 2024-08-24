@@ -33,53 +33,56 @@ fn main() {
             match pq.recv() {
                 Message::Msg(buyer, priority) => {
                     let seats: Vec<Seat> = get_best_seats(&mut stadium, &buyer.section_type, buyer.quantity as u8);
+
                     let mut con = buyer.connection.unwrap();
 
-                    // Commented to avoid the .unwrap and avoid errors
-                    //con.write(serde_json::to_string(&seats).unwrap().as_bytes()).expect("TODO: panic message");
-
-                    match serde_json::to_string(&seats) {
-                        Ok(seats) => {
-                            con.write(&seats.as_bytes());
+                    if !seats.is_empty() {
+                        match serde_json::to_string(&seats) {
+                            Ok(seats) => {
+                                con.write(&seats.as_bytes());
+                            }
+                            Err(e) => {
+                                println!("{:?}", e)
+                            }
                         }
-                        Err(e) => {
-                            println!("{:?}", e)
+                        // Wait for the client response
+
+                        // Create a buffer to read the client response
+                        let mut buffer = [0;512];
+                        let n = con.read(&mut buffer).expect("Error reading the client response");
+                        let response_data = &buffer[0..n];
+                        // Here we recieve the response from the client that is if he will buy the seats or not
+                        let client_response: serde_json::Value = serde_json::from_slice(response_data).expect("Error parsing the client response");
+
+                        // Check if the client response is true or false, the default value is false
+                        if client_response["response"].as_bool().unwrap_or(false) {
+                            println!("Client accepted the seats");
+                            // ...
+
+
+
+                            // Send a message to the client to close the connection
+                            match con.write(b"Closing connection") {
+                                // If the confirmation was sent successfully
+                                Ok(_) => println!("Confirmation sent to the client."),
+                                Err(e) => println!("Error sending the confirmation to client: {:?}", e),
+                            }
+                        } else {
+                            println!("Client rejected the seats");
+                            // ...
+
+
+
+                            // Send a message to the client to close the connection
+                            match con.write(b"Closing connection") {
+                                // If the confirmation was sent successfully
+                                Ok(_) => println!("Confirmacion enviada al cliente."),
+                                Err(e) => println!("Error sending the confirmation to client: {:?}", e),
+                            }
                         }
-                    }
-                    // Wait for the client response
 
-                    // Create a buffer to read the client response
-                    let mut buffer = [0;512];
-                    let n = con.read(&mut buffer).expect("Error reading the client response");
-                    let response_data = &buffer[0..n];
-                    // Here we recieve the response from the client that is if he will buy the seats or not
-                    let client_response: serde_json::Value = serde_json::from_slice(response_data).expect("Error parsing the client response");
-
-                    // Check if the client response is true or false, the default value is false
-                    if client_response["response"].as_bool().unwrap_or(false) {
-                        println!("Client accepted the seats");
-                        // ...
-
-
-
-                        // Send a message to the client to close the connection
-                        match con.write(b"Closing connection") {
-                            // If the confirmation was sent successfully
-                            Ok(_) => println!("Confirmacion enviada al cliente."),
-                            Err(e) => println!("Error sending the confirmation to client: {:?}", e),
-                        }
                     } else {
-                        println!("Client rejected the seats");
-                        // ...
-
-
-
-                        // Send a message to the client to close the connection
-                        match con.write(b"Closing connection") {
-                            // If the confirmation was sent successfully
-                            Ok(_) => println!("Confirmacion enviada al cliente."),
-                            Err(e) => println!("Error sending the confirmation to client: {:?}", e),
-                        }
+                        con.write(b"No hay asientos disponibles");
                     }
 
                     match con.shutdown(Shutdown::Both) {
@@ -87,6 +90,7 @@ fn main() {
                         Err(e) => println!("Error al cerrar la conexión: {:?}", e),
                     }
                 }
+
                 Message::Drained => {
                     println!("Drained")
                 }

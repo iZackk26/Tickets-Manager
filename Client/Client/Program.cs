@@ -61,6 +61,13 @@ class Program
             Console.WriteLine($"Respuesta del servidor: {response}");
 
             // Parte 2: Esperar el tiempo de respuesta y enviar el response
+            if (client.response_time >= 10000)
+            {
+                Console.WriteLine("El tiempo de respuesta es muy alto. Cancelando la operación.");
+                // Cerrar la conexión
+                tcpClient.Close();
+                return;
+            }
             await Task.Delay(client.response_time); // Simula el tiempo de espera
 
             var finalMessage = JsonSerializer.Serialize(new { client.response });
