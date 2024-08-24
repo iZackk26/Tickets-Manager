@@ -2,31 +2,31 @@
   {
     "section_type": "shaded",
     "quantity": 3,
-    "response_time": 5000,
+    "response_time": 2000,
     "response": true
   },
   {
     "section_type": "shaded",
     "quantity": 2,
-    "response_time": 5000,
+    "response_time": 2000,
     "response": false
   },
   {
     "section_type": "shaded",
     "quantity": 5,
-    "response_time": 5000,
+    "response_time": 2000,
     "response": true
   },
   {
     "section_type": "shaded",
     "quantity": 4,
-    "response_time": 5000,
+    "response_time": 2000,
     "response": false
   },
   {
     "section_type": "shaded",
     "quantity": 5,
-    "response_time": 10000,
+    "response_time": 2000,
     "response": true
   }
 ]

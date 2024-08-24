@@ -8,7 +8,7 @@ use std::thread;
 use crate::server::socket::{parse_client};
 use crate::stadium::structures::{Seat, Status, Zone};
 use mpmcpq::{PriorityQueue, Stash, Message};
-use crate::algorithm::{fill_stadium, get_best_seats};
+use crate::algorithm::{fill_stadium, get_best_seats, modify_seats_status};
 use crate::server::buyer::Buyer;
 
 mod stadium;
@@ -18,7 +18,7 @@ mod server;
 
 fn main() {
     let mut stadium: HashMap<String, Zone> = stadium::data::generate_stadium();
-    fill_stadium(&mut stadium, 0.0);
+    fill_stadium(&mut stadium, 0.91); // Se llena al 91 %
     //println!("{:?}", algorithm::get_best_seats(&mut stadium, &"shaded".to_string(), 3));
 
     let priority_queue: Arc<PriorityQueue<Buyer, i8>> = Arc::new(PriorityQueue::new());
@@ -52,15 +52,29 @@ fn main() {
                         let n = con.read(&mut buffer).expect("Error reading the client response");
                         let response_data = &buffer[0..n];
                         // Here we recieve the response from the client that is if he will buy the seats or not
-                        let client_response: serde_json::Value = serde_json::from_slice(response_data).expect("Error parsing the client response");
+                        //let client_response: serde_json::Value = serde_json::from_slice(response_data).expect("Error parsing the client response");
+                        let client_response: serde_json::Value = match serde_json::from_slice(response_data) {
+                            Ok(value) => value,
+                            Err(e) => {
+                                println!("Error al parsear la respuesta del cliente: {:?}", e);
+                                modify_seats_status(&mut stadium, seats, Status::Available);
+                                // Aquí puedes decidir cómo manejar el error, por ejemplo, cerrar la conexión o enviar un mensaje de error
+                                match con.write(b"Respuesta invalida recibida. Cerrando conexion.") {
+                                    Ok(_) => println!("Mensaje de error enviado al cliente."),
+                                    Err(e) => println!("Error al enviar mensaje de error al cliente: {:?}", e),
+                                };
+                                con.shutdown(Shutdown::Both).unwrap_or_else(|e| {
+                                    println!("Error al cerrar la conexion: {:?}", e);
+                                });
+                                return;
+                            }
+                        };
 
                         // Check if the client response is true or false, the default value is false
                         if client_response["response"].as_bool().unwrap_or(false) {
                             println!("Client accepted the seats");
                             // ...
-
-
-
+                            modify_seats_status(&mut stadium, seats, Status::Purchased);
                             // Send a message to the client to close the connection
                             match con.write(b"Closing connection") {
                                 // If the confirmation was sent successfully
@@ -69,10 +83,7 @@ fn main() {
                             }
                         } else {
                             println!("Client rejected the seats");
-                            // ...
-
-
-
+                            modify_seats_status(&mut stadium, seats, Status::Available);
                             // Send a message to the client to close the connection
                             match con.write(b"Closing connection") {
                                 // If the confirmation was sent successfully
