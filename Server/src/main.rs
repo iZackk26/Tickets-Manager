@@ -76,7 +76,7 @@ fn main() {
                             // ...
                             modify_seats_status(&mut stadium, seats, Status::Purchased);
                             // Send a message to the client to close the connection
-                            match con.write(b"Closing connection") {
+                            match con.write(b"Purchase completed, closing connection") {
                                 // If the confirmation was sent successfully
                                 Ok(_) => println!("Confirmation sent to the client."),
                                 Err(e) => println!("Error sending the confirmation to client: {:?}", e),
@@ -85,7 +85,7 @@ fn main() {
                             println!("Client rejected the seats");
                             modify_seats_status(&mut stadium, seats, Status::Available);
                             // Send a message to the client to close the connection
-                            match con.write(b"Closing connection") {
+                            match con.write(b"Seats were rejected, closing connection") {
                                 // If the confirmation was sent successfully
                                 Ok(_) => println!("Confirmacion enviada al cliente."),
                                 Err(e) => println!("Error sending the confirmation to client: {:?}", e),

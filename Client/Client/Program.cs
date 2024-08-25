@@ -47,6 +47,12 @@ class Program
             using NetworkStream stream = tcpClient.GetStream();
 
             // Parte 1: Enviar section_type y quantity
+            if (client.quantity > 10)
+            {
+                Console.WriteLine("No puedes consultar por más de 10 asientos, vuelve a intentar la transacción.");
+                tcpClient.Close();
+                return;
+            } 
             var partialClient = new { client.section_type, client.quantity };
             var partialMessage = JsonSerializer.Serialize(partialClient);
             var data = Encoding.UTF8.GetBytes(partialMessage);
