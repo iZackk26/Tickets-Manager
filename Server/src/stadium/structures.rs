@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use serde::Serialize;
+use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Clone, Copy, Serialize)]
 pub enum Status {
@@ -22,6 +22,7 @@ pub struct Zone {
 
 #[derive(Debug, Default, Clone)]
 pub struct Category {
+    pub category: char,
     pub rows: HashMap<char, Row>,
 }
 
@@ -39,3 +40,4 @@ pub struct Seat {
     pub visibility: f32,
     pub status: Status,
 }
+
