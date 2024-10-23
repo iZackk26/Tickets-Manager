@@ -410,6 +410,24 @@ pub fn get_best_seats(
     return best_seats;
 }
 
+fn get_category_available_seats(chosen_category: &Category) -> Vec<Vec<Seat>> {
+    let mut category_available_seats: Vec<Vec<Seat>> = Vec::new();
+
+    for (row_key, row) in chosen_category.rows.iter() {
+        let mut row_available_seats: Vec<Seat> = Vec::new();
+
+        for (seat_key, seat) in row.seats.iter() {
+            if seat.status == Status::Available {
+                row_available_seats.push(seat.clone());
+            }
+        }
+
+        category_available_seats.push(row_available_seats);
+    }
+
+    return category_available_seats;
+}
+
 pub fn get_best_seats_filtered_by_category(
     stadium: &mut HashMap<String, Zone>,
     category_requested: &char,
@@ -437,30 +455,26 @@ pub fn get_best_seats_filtered_by_category(
 
     zones_with_seats_quantity.sort_by(|a, b| b.1.cmp(&a.1));
 
-    println!(
-        "{:?} {:?} {:?} {:?} {:?} {:?}",
-        category_requested,
-        seats_requested,
-        north_zone_available_seats_quantity,
-        south_zone_available_seats_quantity,
-        east_zone_available_seats_quantity,
-        west_zone_available_seats_quantity
-    );
+    let mut all_candidates: Vec<Vec<Seat>> = Vec::new();
 
     for (zone_name, _seats_quantity) in zones_with_seats_quantity {
         let zone = stadium.get(zone_name).unwrap();
+        let mut category_available_seats: Vec<Vec<Seat>> = Vec::new();
 
         for (category_char, category) in &zone.categories {
-            if (category_char == category_requested) {
-                println!("{:?}", category_char);
+            if category_char == category_requested {
+                category_available_seats = get_category_available_seats(category);
+                break;
             }
         }
 
-        //let category_best_seats = get_category_candidate(zone_available_seats, seats_requested);
-
-        // println!(
-        //     "Zona: {}, Asientos disponibles: {:?}",
-        //     zone_name, zone_available_seats
-        // );
+        let category_best_seats = get_category_candidate(category_available_seats, seats_requested);
+        all_candidates.push(category_best_seats);
     }
+
+    let best_seats = filter_candidates(all_candidates);
+    println!(
+        "Best seats for category {}: {:?}",
+        category_requested, best_seats
+    );
 }
