@@ -428,34 +428,77 @@ fn get_category_available_seats(chosen_category: &Category) -> Vec<Vec<Seat>> {
     return category_available_seats;
 }
 
+fn get_worst_candidate(candidates_to_compare: Vec<Vec<Seat>>) -> Vec<Seat> {
+    let mut worst_candidate: Vec<Seat> = Vec::new();
+    let mut current_difference: i8 = -1;
+    let mut current_candidate_visibility_average: f32 = 0.00;
+
+    for candidate in candidates_to_compare.iter() {
+        let mut candidates_seats_number: Vec<u8> =
+            candidate.iter().map(|seat| seat.number).collect();
+        candidates_seats_number.sort();
+
+        let mut seats_difference: i8 = 0;
+
+        if candidates_seats_number.len() > 0 {
+            for i in 0..candidates_seats_number.len() - 1 {
+                seats_difference +=
+                    (candidates_seats_number[i + 1] as i8 - candidates_seats_number[i] as i8).abs()
+                        - 1;
+            }
+
+            let candidate_visibility_average = get_candidate_visibility_average(candidate.clone());
+
+            if (seats_difference > current_difference)
+                || (seats_difference == current_difference
+                && candidate_visibility_average < current_candidate_visibility_average)
+            {
+                worst_candidate = candidate.clone();
+                current_difference = seats_difference;
+                current_candidate_visibility_average = candidate_visibility_average;
+            }
+        }
+    }
+    return worst_candidate;
+}
+
+fn are_candidates_equal(candidate1: &Vec<Seat>, candidate2: &Vec<Seat>) -> bool {
+    if candidate1.len() != candidate2.len() {
+        return false;
+    }
+    for (seat1, seat2) in candidate1.iter().zip(candidate2.iter()) {
+        if !are_seats_equal(seat1, seat2) {
+            return false;
+        }
+    }
+    true
+}
+
+fn are_seats_equal(seat1: &Seat, seat2: &Seat) -> bool {
+    seat1.zone.eq_ignore_ascii_case(&seat2.zone)
+        && seat1.category == seat2.category
+        && seat1.row == seat2.row
+        && seat1.number == seat2.number
+}
+
 pub fn get_best_seats_filtered_by_category(
     stadium: &mut HashMap<String, Zone>,
     category_requested: &char,
     seats_requested: u8,
-) -> Vec<Seat> {  // Ahora devuelve un Vec<Seat>
-
-    // Verificamos los asientos disponibles en cada zona
+) -> Vec<Vec<Seat>> {
     let north_zone_available_seats_quantity: usize = get_zone_available_seats_quantity(
         &get_zone_available_seats(stadium.get("north").unwrap().clone()),
     );
-    println!("Asientos disponibles en la zona North: {}", north_zone_available_seats_quantity);
-
     let south_zone_available_seats_quantity: usize = get_zone_available_seats_quantity(
         &get_zone_available_seats(stadium.get("south").unwrap().clone()),
     );
-    println!("Asientos disponibles en la zona South: {}", south_zone_available_seats_quantity);
-
     let east_zone_available_seats_quantity: usize = get_zone_available_seats_quantity(
         &get_zone_available_seats(stadium.get("east").unwrap().clone()),
     );
-    println!("Asientos disponibles en la zona East: {}", east_zone_available_seats_quantity);
-
     let west_zone_available_seats_quantity: usize = get_zone_available_seats_quantity(
         &get_zone_available_seats(stadium.get("west").unwrap().clone()),
     );
-    println!("Asientos disponibles en la zona West: {}", west_zone_available_seats_quantity);
 
-    // Creamos la lista con las zonas y los asientos disponibles
     let mut zones_with_seats_quantity: Vec<(&str, usize)> = vec![
         ("north", north_zone_available_seats_quantity),
         ("south", south_zone_available_seats_quantity),
@@ -467,46 +510,52 @@ pub fn get_best_seats_filtered_by_category(
 
     let mut all_candidates: Vec<Vec<Seat>> = Vec::new();
 
-    // Iteramos sobre las zonas ordenadas por cantidad de asientos disponibles
     for (zone_name, _seats_quantity) in zones_with_seats_quantity {
-        println!("Verificando la zona: {}", zone_name);
-
         let zone = stadium.get(zone_name).unwrap();
         let mut category_available_seats: Vec<Vec<Seat>> = Vec::new();
 
-        // Buscamos si la categoría solicitada existe en esta zona
         for (category_char, category) in &zone.categories {
             if category_char == category_requested {
-                println!(
-                    "Categoría encontrada en la zona {}: {}",
-                    zone_name, category_char
-                );
                 category_available_seats = get_category_available_seats(category);
                 break;
             }
         }
 
-        // Verificamos los asientos disponibles en la categoría solicitada
-        println!(
-            "Cantidad de filas con asientos disponibles en la categoría {}: {}",
-            category_requested, category_available_seats.len()
-        );
-
-        // Obtenemos los mejores asientos de la categoría
         let category_best_seats = get_category_candidate(category_available_seats, seats_requested);
-        println!(
-            "Mejores asientos encontrados en la categoría {}: {:?}",
-            category_requested, category_best_seats
-        );
-
         all_candidates.push(category_best_seats);
     }
 
-    // Filtramos los mejores candidatos de todos los asientos encontrados
-    let best_seats = filter_candidates(all_candidates);
-    println!("Mejores asientos seleccionados: {:?}", best_seats);
+    all_candidates.retain(|vector| !vector.is_empty());
 
-    best_seats  // Ahora devuelve los mejores asientos
+    if all_candidates.len() <= 3 {
+        println!("less than three (or 3)");
+        return all_candidates;
+    }
+
+    println!("four");
+
+    let all_candidates_copy = all_candidates.clone();
+    let worst_candidate = get_worst_candidate(all_candidates_copy);
+
+    let mut new_candidates: Vec<Vec<Seat>> = Vec::new();
+    let new_candidates_copy = all_candidates.clone();
+
+    println!(
+        "WORST----------------{:?}-------------------------",
+        worst_candidate
+    );
+
+    for candidate in all_candidates {
+        if !are_candidates_equal(&candidate, &worst_candidate) {
+            new_candidates.push(candidate);
+        }
+    }
+
+    for candidate in new_candidates_copy {
+        modify_seats_status(stadium, candidate, Status::Reserved);
+    }
+
+    new_candidates
 }
 
 pub fn get_available_seats_by_zone(stadium: &HashMap<String, Zone>) -> HashMap<String, usize> {

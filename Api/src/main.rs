@@ -41,7 +41,7 @@ fn get_stadium(stadium_state: &State<StadiumState>) -> Result<Json<SeatingMap>, 
 fn get_seats(
     data: Json<Asiento>,
     stadium_state: &rocket::State<StadiumState>  // Añadir el estadio gestionado como argumento
-) -> Result<Json<Vec<Seat>>, Status> {
+) -> Result<Json<Vec<Vec<Seat>>>, Status> {
     if data.cantidad <= 0 {
         return Err(Status::BadRequest);
     }
