@@ -430,7 +430,7 @@ fn get_category_available_seats(chosen_category: &Category) -> Vec<Vec<Seat>> {
 
 fn get_worst_candidate(candidates_to_compare: Vec<Vec<Seat>>) -> Vec<Seat> {
     let mut worst_candidate: Vec<Seat> = Vec::new();
-    let mut current_difference: i8 = 0;
+    let mut current_difference: i8 = -1;
     let mut current_candidate_visibility_average: f32 = 0.00;
 
     for candidate in candidates_to_compare.iter() {
@@ -539,6 +539,11 @@ pub fn get_best_seats_filtered_by_category(
 
     let mut new_candidates: Vec<Vec<Seat>> = Vec::new();
     let new_candidates_copy = all_candidates.clone();
+
+    println!(
+        "WORST----------------{:?}-------------------------",
+        worst_candidate
+    );
 
     for candidate in all_candidates {
         if !are_candidates_equal(&candidate, &worst_candidate) {
