@@ -538,11 +538,16 @@ pub fn get_best_seats_filtered_by_category(
     let worst_candidate = get_worst_candidate(all_candidates_copy);
 
     let mut new_candidates: Vec<Vec<Seat>> = Vec::new();
+    let new_candidates_copy = all_candidates.clone();
 
     for candidate in all_candidates {
         if !are_candidates_equal(&candidate, &worst_candidate) {
             new_candidates.push(candidate);
         }
+    }
+
+    for candidate in new_candidates_copy {
+        modify_seats_status(stadium, candidate, Status::Reserved);
     }
 
     return new_candidates;
