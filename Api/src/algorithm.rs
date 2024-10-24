@@ -432,20 +432,30 @@ pub fn get_best_seats_filtered_by_category(
     stadium: &mut HashMap<String, Zone>,
     category_requested: &char,
     seats_requested: u8,
-) {
+) -> Vec<Seat> {  // Ahora devuelve un Vec<Seat>
+
+    // Verificamos los asientos disponibles en cada zona
     let north_zone_available_seats_quantity: usize = get_zone_available_seats_quantity(
         &get_zone_available_seats(stadium.get("north").unwrap().clone()),
     );
+    println!("Asientos disponibles en la zona North: {}", north_zone_available_seats_quantity);
+
     let south_zone_available_seats_quantity: usize = get_zone_available_seats_quantity(
         &get_zone_available_seats(stadium.get("south").unwrap().clone()),
     );
+    println!("Asientos disponibles en la zona South: {}", south_zone_available_seats_quantity);
+
     let east_zone_available_seats_quantity: usize = get_zone_available_seats_quantity(
         &get_zone_available_seats(stadium.get("east").unwrap().clone()),
     );
+    println!("Asientos disponibles en la zona East: {}", east_zone_available_seats_quantity);
+
     let west_zone_available_seats_quantity: usize = get_zone_available_seats_quantity(
         &get_zone_available_seats(stadium.get("west").unwrap().clone()),
     );
+    println!("Asientos disponibles en la zona West: {}", west_zone_available_seats_quantity);
 
+    // Creamos la lista con las zonas y los asientos disponibles
     let mut zones_with_seats_quantity: Vec<(&str, usize)> = vec![
         ("north", north_zone_available_seats_quantity),
         ("south", south_zone_available_seats_quantity),
@@ -457,24 +467,67 @@ pub fn get_best_seats_filtered_by_category(
 
     let mut all_candidates: Vec<Vec<Seat>> = Vec::new();
 
+    // Iteramos sobre las zonas ordenadas por cantidad de asientos disponibles
     for (zone_name, _seats_quantity) in zones_with_seats_quantity {
+        println!("Verificando la zona: {}", zone_name);
+
         let zone = stadium.get(zone_name).unwrap();
         let mut category_available_seats: Vec<Vec<Seat>> = Vec::new();
 
+        // Buscamos si la categoría solicitada existe en esta zona
         for (category_char, category) in &zone.categories {
             if category_char == category_requested {
+                println!(
+                    "Categoría encontrada en la zona {}: {}",
+                    zone_name, category_char
+                );
                 category_available_seats = get_category_available_seats(category);
                 break;
             }
         }
 
+        // Verificamos los asientos disponibles en la categoría solicitada
+        println!(
+            "Cantidad de filas con asientos disponibles en la categoría {}: {}",
+            category_requested, category_available_seats.len()
+        );
+
+        // Obtenemos los mejores asientos de la categoría
         let category_best_seats = get_category_candidate(category_available_seats, seats_requested);
+        println!(
+            "Mejores asientos encontrados en la categoría {}: {:?}",
+            category_requested, category_best_seats
+        );
+
         all_candidates.push(category_best_seats);
     }
 
+    // Filtramos los mejores candidatos de todos los asientos encontrados
     let best_seats = filter_candidates(all_candidates);
-    println!(
-        "Best seats for category {}: {:?}",
-        category_requested, best_seats
-    );
+    println!("Mejores asientos seleccionados: {:?}", best_seats);
+
+    best_seats  // Ahora devuelve los mejores asientos
+}
+
+pub fn get_available_seats_by_zone(stadium: &HashMap<String, Zone>) -> HashMap<String, usize> {
+    // This function retrieves the available seats by zone and returns them in a HashMap
+    // It iterates over the entire stadium and counts the available seats in each zone
+    // Then it stores the quantity in a HashMap, which is returned at the end
+    let mut available_seats_by_zone: HashMap<String, usize> = HashMap::new();
+
+    for (zone_key, zone) in stadium {
+        let mut zone_available_seats = 0;
+        for (_category_key, category) in &zone.categories {
+            for (_row_key, row) in &category.rows {
+                for (_seat_number, seat) in &row.seats {
+                    if seat.status == Status::Available {
+                        zone_available_seats += 1;
+                    }
+                }
+            }
+        }
+        available_seats_by_zone.insert(zone_key.clone(), zone_available_seats);
+    }
+
+    available_seats_by_zone
 }

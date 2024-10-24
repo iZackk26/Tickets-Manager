@@ -45,7 +45,6 @@ pub struct SeatingMap {
     pub east: Zone,
 }
 
-
 pub struct StadiumState {
     pub seating_map: Mutex<HashMap<String, Zone>>,
 }

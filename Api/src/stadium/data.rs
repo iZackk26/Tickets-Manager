@@ -104,4 +104,3 @@ pub fn create_rows(
     }
     return seats;
 }
-
