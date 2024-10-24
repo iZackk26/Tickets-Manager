@@ -1,5 +1,6 @@
 mod algorithm;
 mod stadium;
+mod priorityQueue;
 
 #[macro_use]
 extern crate rocket;
@@ -11,13 +12,66 @@ use rocket::response::status;
 use rocket::serde::{json::Json, Deserialize, Serialize};
 use rocket::State;
 use std::collections::HashMap;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
+use mpmcpq::PriorityQueue;
+use rocket::tokio::sync::Notify;
+use crate::priorityQueue::{AppState, Buyer};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Asiento {
     cantidad: u32,
     categoria: char,
 }
+
+// Función que procesa la cola de prioridad
+async fn process_priority_queue(
+    app_state: &AppState,
+    stadium_state: &rocket::State<StadiumState>,
+) -> Option<Vec<Vec<Seat>>> {
+    let mut queue_guard = app_state.priority_queue.lock().unwrap();
+
+    // Intentar recibir el siguiente mensaje con mayor prioridad
+    let buyer_msg = queue_guard.try_recv();
+
+    match buyer_msg {
+        Some(buyer) => {
+            // Usar el método `message()` y manejar el caso de `None`
+            if let Some(buyer_data) = buyer.message() {
+                println!(
+                    "Procesando comprador con ID: {} y {} asientos",
+                    buyer_data.buyer_id, buyer_data.seats
+                );
+
+                // Obtener acceso al estadio gestionado
+                let mut stadium = stadium_state.seating_map.lock().unwrap();
+
+                // Buscar los mejores asientos
+                let best_seats = get_best_seats_filtered_by_category(
+                    &mut stadium,
+                    &buyer_data.category,
+                    buyer_data.seats as u8,
+                );
+
+                // Notificar al comprador que su solicitud fue procesada
+                buyer_data.notify.notify_one();
+
+                // Devolver los mejores asientos
+                Some(best_seats)
+            } else {
+                println!("No se pudo obtener el mensaje de Buyer.");
+                None
+            }
+        }
+        None => {
+            println!("No hay solicitudes en la cola.");
+            None
+        }
+    }
+}
+
+
+
+
 
 #[get("/asientos")]
 fn get_stadium(stadium_state: &State<StadiumState>) -> Result<Json<SeatingMap>, Status> {
@@ -37,24 +91,44 @@ fn get_stadium(stadium_state: &State<StadiumState>) -> Result<Json<SeatingMap>, 
 }
 
 // Ruta para manejar solicitudes POST
-#[get("/get-seats", format = "json", data = "<data>")]
-fn get_seats(
+#[rocket::get("/get-seats", format = "json", data = "<data>")]
+async fn get_seats(
     data: Json<Asiento>,
-    stadium_state: &rocket::State<StadiumState>  // Añadir el estadio gestionado como argumento
+    stadium_state: &rocket::State<StadiumState>,
+    app_state: &rocket::State<AppState>,
 ) -> Result<Json<Vec<Vec<Seat>>>, Status> {
     if data.cantidad <= 0 {
         return Err(Status::BadRequest);
     }
 
-    // Obtener acceso al estadio gestionado, y bloquearlo para su acceso
+    let notify = Arc::new(Notify::new());
+    let buyer = Buyer {
+        buyer_id: "some_unique_id".to_string(),
+        seats: data.cantidad,
+        category: data.categoria,
+        notify: notify.clone(),
+    };
+
+    let priority = data.cantidad;
+
+    // Añadir el comprador a la cola de prioridad
+    {
+        let mut queue_guard = app_state.priority_queue.lock().map_err(|_| Status::InternalServerError)?;
+        queue_guard.send_nostash(buyer, priority);
+    }
+
+    // Esperar a que la solicitud del cliente sea procesada
+    notify.notified().await;
+
+    // Una vez notificado, procesar la solicitud
     let mut stadium = stadium_state.seating_map.lock().map_err(|_| Status::InternalServerError)?;
 
-    // Llamar a la función que encuentra los mejores asientos
+    // Obtener los mejores asientos una vez que la solicitud es procesada
     let best_seats = get_best_seats_filtered_by_category(&mut stadium, &data.categoria, data.cantidad as u8);
 
-    // Devolver los asientos encontrados en formato JSON
     Ok(Json(best_seats))
 }
+
 
 #[post("/modify-seats", format = "json", data = "<seats>")]
 fn modify_seats(
@@ -103,7 +177,12 @@ fn rocket() -> _ {
     //Genera el estadio inicializado
     let mut stadium: HashMap<String, Zone> = stadium::data::generate_stadium();
     fill_stadium(&mut stadium, 0.0); // Llena el estadio con asientos y otras propiedades
-                                     //println!("{:?}", stadium);
+
+    let priority_queue = PriorityQueue::<Buyer, u32>::new();
+
+    let app_state = AppState {
+        priority_queue: Mutex::new(priority_queue),
+    };
 
     // Crea el estado gestionado con la estructura StadiumState
     let stadium_state = StadiumState {
@@ -112,6 +191,7 @@ fn rocket() -> _ {
 
     rocket::build()
         .manage(stadium_state) // Gestiona el estado del estadio
+        .manage(app_state) // Gestiona el estado de la cola de prioridad
         .mount("/", routes![index, get_stadium, get_seats, modify_seats, get_available_seats_by_zone_route])
         .register("/", catchers![not_found])
 }
