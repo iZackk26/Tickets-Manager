@@ -17,7 +17,7 @@ mod stadium;
 
 fn main() {
     let mut stadium: HashMap<String, Zone> = stadium::data::generate_stadium();
-    fill_stadium(&mut stadium, 0.9);
+    fill_stadium(&mut stadium, 0.6);
 
     let section_type = "shaded".to_string();
     let seats = algorithm::get_best_seats(&mut stadium, &section_type, 3);
@@ -25,5 +25,9 @@ fn main() {
         println!("{:?}", seat);
     }
     let category: char = 'd';
-    algorithm::get_best_seats_filtered_by_category(&mut stadium, &category, 3);
+
+    let best_seat_set = algorithm::get_best_seats_filtered_by_category(&mut stadium, &category, 3);
+    println!("{:?}", best_seat_set);
+
+    println!("{:?}", best_seat_set.len());
 }
