@@ -1,8 +1,10 @@
 interface PaymentType {
   cardNumber: number,
   cardHolderName: string,
-  expirationDate: Date,
-  cvv: number
+  validationDate: string,
+  expirationDate: string,
+  cvv: number,
+  paymentNetwork: string
 }
 
 export default PaymentType;

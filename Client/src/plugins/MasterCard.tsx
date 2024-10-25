@@ -1,10 +1,9 @@
-
 import PaymentType from "../types/Payment";
 
-function Visa({ cardNumber, cardHolderName, validationDate, expirationDate, cvv }: PaymentType) {
+function MasterCard({ cardNumber, cardHolderName, validationDate, expirationDate, cvv }: PaymentType) {
   return (
     <div className="w-96 h-56 m-auto bg-red-100 rounded-xl relative text-white shadow-2xl transition-transform transform hover:scale-110">
-      <img className="relative object-cover w-full h-full rounded-xl" src="https://i.imgur.com/kGkSg1v.png" alt="Background" />
+      <img className="relative object-cover w-full h-full rounded-xl" src="https://i.imgur.com/Zi6v09P.png" alt="Background" />
       <div className="w-full px-8 absolute top-8">
         <div className="flex justify-between">
           <div>
@@ -38,4 +37,4 @@ function Visa({ cardNumber, cardHolderName, validationDate, expirationDate, cvv 
   )
 }
 
-export default Visa;
+export default MasterCard;

@@ -29,7 +29,8 @@ export default function DinamicPluginLoader() {
   const samplePaymentData: PaymentType = {
     cardNumber: 1234567812345678,
     cardHolderName: 'John Doe',
-    expirationDate: new Date('2024-12-31'),
+    validationDate: "11/15",
+    expirationDate: "12/24",
     cvv: 123,
   };
 
