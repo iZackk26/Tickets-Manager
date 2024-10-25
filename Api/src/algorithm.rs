@@ -161,7 +161,7 @@ fn get_available_combinations(seats: Vec<Seat>, seats_quantity: usize) -> Vec<Ve
 
 fn filter_candidates(candidates_to_compare: Vec<Vec<Seat>>) -> Vec<Seat> {
     let mut best_candidate: Vec<Seat> = Vec::new(); // This is the best set of seats filtered
-    // The current seat difference starts at 11 since it will never exceed this value. It's the sum of the differences between each seat in the set
+                                                    // The current seat difference starts at 11 since it will never exceed this value. It's the sum of the differences between each seat in the set
     let mut current_difference: i8 = 11; // The seat difference refers to their numbers, e.g., between seat 2 and seat 5, the difference is 2 (3,4)
     let mut current_candidate_visibility_average: f32 = 0.00; // Visibility percentage of the entire set
 
@@ -195,7 +195,7 @@ fn filter_candidates(candidates_to_compare: Vec<Vec<Seat>>) -> Vec<Seat> {
             // But if the difference is the same, it keeps the set with the better visibility percentage. In other words, it chooses the closest seats with the best visibility
             if (seats_difference < current_difference)
                 || (seats_difference == current_difference
-                && candidate_visibility_average > current_candidate_visibility_average)
+                    && candidate_visibility_average > current_candidate_visibility_average)
             {
                 // This makes the candidate change if the conditions are met
                 best_candidate = candidate.clone();
@@ -451,7 +451,7 @@ fn get_worst_candidate(candidates_to_compare: Vec<Vec<Seat>>) -> Vec<Seat> {
 
             if (seats_difference > current_difference)
                 || (seats_difference == current_difference
-                && candidate_visibility_average < current_candidate_visibility_average)
+                    && candidate_visibility_average < current_candidate_visibility_average)
             {
                 worst_candidate = candidate.clone();
                 current_difference = seats_difference;
@@ -538,7 +538,6 @@ pub fn get_best_seats_filtered_by_category(
     let worst_candidate = get_worst_candidate(all_candidates_copy);
 
     let mut new_candidates: Vec<Vec<Seat>> = Vec::new();
-    let new_candidates_copy = all_candidates.clone();
 
     println!(
         "WORST----------------{:?}-------------------------",
@@ -551,6 +550,7 @@ pub fn get_best_seats_filtered_by_category(
         }
     }
 
+    let new_candidates_copy = new_candidates.clone();
     for candidate in new_candidates_copy {
         modify_seats_status(stadium, candidate, Status::Reserved);
     }
