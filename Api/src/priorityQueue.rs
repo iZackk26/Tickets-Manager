@@ -1,8 +1,7 @@
 use mpmcpq::PriorityQueue;
 use mpmcpq::Stash;
-use std::sync::{Arc, Mutex};
-use std::cmp::Ordering;
-use rocket::State;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 use rocket::tokio::sync::Notify;
 
 #[derive(Debug)]
@@ -13,16 +12,15 @@ pub struct Buyer {
     pub notify: Arc<Notify>,
 }
 
-
 // Estructura que se usará como prioridad en la cola (cuantos más asientos, mayor prioridad)
 impl PartialOrd for Buyer {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.seats.cmp(&other.seats).reverse()) // Invertir para que más asientos sea mayor prioridad
     }
 }
 
 impl Ord for Buyer {
-    fn cmp(&self, other: &Self) -> Ordering {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.seats.cmp(&other.seats).reverse()
     }
 }

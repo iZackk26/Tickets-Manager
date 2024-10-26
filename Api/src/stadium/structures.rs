@@ -1,6 +1,12 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::Mutex;
+use std::sync::Arc;
+use rocket::fairing::{Fairing, Info, Kind};
+use rocket::Rocket;
+use tokio::sync::Mutex;
+use crate::priorityQueue::AppState;
+use crate::process_priority_queue;
+// Importa el Mutex asíncrono
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Zone {
@@ -48,3 +54,4 @@ pub struct SeatingMap {
 pub struct StadiumState {
     pub seating_map: Mutex<HashMap<String, Zone>>,
 }
+
