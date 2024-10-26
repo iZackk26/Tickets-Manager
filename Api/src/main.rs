@@ -9,6 +9,8 @@ use crate::algorithm::{
     fill_stadium, get_available_seats_by_zone, get_best_seats_filtered_by_category,
     modify_seats_status,
 };
+
+use rocket_cors::{AllowedHeaders, AllowedOrigins, CorsOptions, Cors};
 use crate::stadium::structures::{Seat, SeatingMap, StadiumState, Zone};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Status;
@@ -22,6 +24,33 @@ use mpmcpq::PriorityQueue;
 use rocket::futures::TryFutureExt;
 use rocket::tokio::sync::Notify;
 use crate::priorityQueue::{AppState, Buyer};
+
+fn make_cors() -> Cors {
+    CorsOptions {
+        // Permitir todos los orígenes
+        allowed_origins: AllowedOrigins::all(),
+        // Permitir métodos comunes
+        allowed_methods: vec![
+            rocket::http::Method::Get,
+            rocket::http::Method::Post,
+            rocket::http::Method::Put,
+            rocket::http::Method::Delete,
+            rocket::http::Method::Options,
+            rocket::http::Method::Head,
+        ]
+            .into_iter()
+            .map(|m| From::from(m))
+            .collect(),
+        // Permitir todos los encabezados
+        allowed_headers: AllowedHeaders::all(),
+        // Permitir credenciales
+        allow_credentials: true,
+        ..Default::default()
+    }
+        .to_cors()
+        .expect("error al construir CORS")
+}
+
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Asiento {
@@ -239,4 +268,5 @@ fn rocket() -> _ {
         )
         .register("/", catchers![not_found])
         .attach(QueueProcessor) // Adjunta el Fairing aquí
+        .attach(make_cors()) // Adjunta el fairing de CORS
 }
