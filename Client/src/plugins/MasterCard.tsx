@@ -1,7 +1,15 @@
-import PaymentType from "../types/Payment";
+import { useState } from "react";
 import { LuNfc } from "react-icons/lu";
+import PaymentType from "../types/Payment";
 
-function MasterCard({ cardNumber, cardHolderName, validationDate, expirationDate, cvv }: PaymentType) {
+function MasterCard() {
+  // Estado para almacenar los valores de los campos
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardHolderName, setCardHolderName] = useState("");
+  const [validationDate, setValidationDate] = useState("");
+  const [expirationDate, setExpirationDate] = useState("");
+  const [cvv, setCvv] = useState("");
+
   return (
     <div className="w-96 h-56 bg-white text-black rounded-xl overflow-hidden relative shadow-lg">
       <div className="p-6 flex flex-col justify-between h-full">
@@ -9,26 +17,58 @@ function MasterCard({ cardNumber, cardHolderName, validationDate, expirationDate
           <LuNfc className="w-6 h-6 text-gray-500" />
           <div className="text-right">
             <p className="text-xs text-gray-500">Expires</p>
-            <p className="font-medium text-black">{expirationDate}</p>
+            <input
+              type="text"
+              value={expirationDate}
+              onChange={(e) => setExpirationDate(e.target.value)}
+              placeholder="MM/YY"
+              className="bg-transparent border-none text-right text-black font-medium w-16 text-xs focus:outline-none"
+            />
           </div>
         </div>
         <div className="space-y-4">
-          <p className="text-2xl tracking-wider font-semibold">{cardNumber}</p>
+          <input
+            type="text"
+            value={cardNumber}
+            onChange={(e) => setCardNumber(e.target.value)}
+            placeholder="1234 5678 9012 3456"
+            maxLength={19}
+            className="bg-transparent border-none text-2xl tracking-wider font-semibold focus:outline-none w-full"
+          />
           <div className="flex justify-between items-center">
             <div>
               <p className="text-xs text-gray-500">Card holder</p>
-              <p className="font-medium text-black">{cardHolderName}</p>
+              <input
+                type="text"
+                value={cardHolderName}
+                onChange={(e) => setCardHolderName(e.target.value)}
+                placeholder="John Doe"
+                className="bg-transparent border-none font-medium text-black focus:outline-none w-full text-sm"
+              />
             </div>
             <div>
               <p className="text-xs text-gray-500">CVV</p>
-              <p className="font-medium text-black">{cvv}</p>
+              <input
+                type="text"
+                value={cvv}
+                onChange={(e) => setCvv(e.target.value)}
+                placeholder="123"
+                maxLength={3}
+                className="bg-transparent border-none font-medium text-black focus:outline-none w-12 text-sm"
+              />
             </div>
           </div>
         </div>
         <div className="flex justify-between pt-4">
           <div>
             <p className="text-xs text-gray-500">Valid From</p>
-            <p className="font-medium text-black">{validationDate}</p>
+            <input
+              type="text"
+              value={validationDate}
+              onChange={(e) => setValidationDate(e.target.value)}
+              placeholder="MM/YY"
+              className="bg-transparent border-none font-medium text-black focus:outline-none w-16 text-xs"
+            />
           </div>
         </div>
         <div className="absolute bottom-6 right-6">
@@ -45,7 +85,6 @@ function MasterCard({ cardNumber, cardHolderName, validationDate, expirationDate
       </div>
     </div>
   );
-  
 }
 
 export default MasterCard;
