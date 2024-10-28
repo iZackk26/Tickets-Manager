@@ -1,26 +1,29 @@
 mod algorithm;
-mod stadium;
 mod priorityQueue;
+mod stadium;
 
 #[macro_use]
 extern crate rocket;
 
-use crate::algorithm::{fill_stadium, get_available_seats_by_category, get_available_seats_by_zone, get_best_seats_filtered_by_category, get_seats_by_zone_and_category, modify_seats_status};
+use crate::algorithm::{
+    fill_stadium, get_available_seats_by_category, get_available_seats_by_zone,
+    get_best_seats_filtered_by_category, get_seats_by_zone_and_category, modify_seats_status,
+};
 
-use rocket_cors::{AllowedHeaders, AllowedOrigins, CorsOptions, Cors};
-use crate::stadium::structures::{Seat, SeatingMap, StadiumState, Zone, Status as SeatStatus};
+use crate::priorityQueue::{AppState, Buyer};
+use crate::stadium::structures::{Seat, SeatingMap, StadiumState, Status as SeatStatus, Zone};
+use mpmcpq::PriorityQueue;
 use rocket::fairing::{Fairing, Info, Kind};
+use rocket::futures::TryFutureExt;
 use rocket::http::Status;
 use rocket::response::status;
 use rocket::serde::{json::Json, Deserialize, Serialize};
+use rocket::tokio::sync::Notify;
 use rocket::State;
+use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use mpmcpq::PriorityQueue;
-use rocket::futures::TryFutureExt;
-use rocket::tokio::sync::Notify;
-use crate::priorityQueue::{AppState, Buyer};
 
 fn make_cors() -> Cors {
     CorsOptions {
@@ -35,19 +38,18 @@ fn make_cors() -> Cors {
             rocket::http::Method::Options,
             rocket::http::Method::Head,
         ]
-            .into_iter()
-            .map(|m| From::from(m))
-            .collect(),
+        .into_iter()
+        .map(|m| From::from(m))
+        .collect(),
         // Permitir todos los encabezados
         allowed_headers: AllowedHeaders::all(),
         // Permitir credenciales
         allow_credentials: true,
         ..Default::default()
     }
-        .to_cors()
-        .expect("error al construir CORS")
+    .to_cors()
+    .expect("error al construir CORS")
 }
-
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Asiento {
@@ -56,10 +58,7 @@ struct Asiento {
 }
 
 // Función que procesa la cola de prioridad
-async fn process_priority_queue(
-    app_state: Arc<AppState>,
-    stadium_state: Arc<StadiumState>,
-) {
+async fn process_priority_queue(app_state: Arc<AppState>, stadium_state: Arc<StadiumState>) {
     loop {
         let mut queue_guard = app_state.priority_queue.lock().await;
 
@@ -86,7 +85,10 @@ async fn process_priority_queue(
                 // Notificar al comprador que su solicitud fue procesada
                 buyer_data.notify.notify_one();
 
-                println!("Solicitud procesada para el comprador ID: {}", buyer_data.buyer_id);
+                println!(
+                    "Solicitud procesada para el comprador ID: {}",
+                    buyer_data.buyer_id
+                );
             }
         } else {
             // Si no hay solicitudes, dormir un breve momento para no consumir CPU
@@ -96,9 +98,7 @@ async fn process_priority_queue(
 }
 
 #[get("/asientos")]
-async fn get_stadium(
-    stadium_state: &State<Arc<StadiumState>>,
-) -> Result<Json<SeatingMap>, Status> {
+async fn get_stadium(stadium_state: &State<Arc<StadiumState>>) -> Result<Json<SeatingMap>, Status> {
     // Bloquear el acceso seguro al estado del estadio de forma asíncrona
     let stadium_guard = stadium_state.seating_map.lock().await;
 
@@ -115,25 +115,29 @@ async fn get_stadium(
 }
 
 // Ruta para manejar solicitudes GET con datos JSON
-#[rocket::get("/get-seats", format = "json", data = "<data>")]
+#[rocket::get("/get-seats/<category>/<quantity>", format = "json")]
 async fn get_seats(
-    data: Json<Asiento>,
+    category: String,
+    quantity: u32,
     stadium_state: &State<Arc<StadiumState>>,
     app_state: &State<Arc<AppState>>,
 ) -> Result<Json<Vec<Vec<Seat>>>, Status> {
-    if data.cantidad <= 0 {
+    if quantity <= 0 {
         return Err(Status::BadRequest);
     }
+
+    // Intentamos convertir el String `category` a un `char`
+    let category_char = category.chars().next().ok_or(Status::BadRequest)?;
 
     let notify = Arc::new(Notify::new());
     let buyer = Buyer {
         buyer_id: "some_unique_id".to_string(),
-        seats: data.cantidad,
-        category: data.categoria,
+        seats: quantity,
+        category: category_char,
         notify: notify.clone(),
     };
 
-    let priority = data.cantidad;
+    let priority = quantity;
 
     // Añadir el comprador a la cola de prioridad
     {
@@ -148,11 +152,8 @@ async fn get_seats(
     let mut stadium = stadium_state.seating_map.lock().await;
 
     // Obtener los mejores asientos una vez que la solicitud es procesada
-    let best_seats = get_best_seats_filtered_by_category(
-        &mut stadium,
-        &data.categoria,
-        data.cantidad as u8,
-    );
+    let best_seats =
+        get_best_seats_filtered_by_category(&mut stadium, &category_char, quantity as u8);
 
     Ok(Json(best_seats))
 }
@@ -277,7 +278,6 @@ async fn get_seats_by_zone_and_category_route(
     // Si la zona no existe o la conversión falla, devuelve un HashMap vacío
     Json(HashMap::new())
 }
-
 
 // Función principal para lanzar el servidor
 #[launch]
