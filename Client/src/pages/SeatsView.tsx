@@ -4,8 +4,14 @@ import AxiosService from '../classes/AxiosService';
 import ROUTES from '../constants/routes';
 import BaseComponent from '../classes/BaseComponent';
 
+interface SeatData {
+  row: string;
+  number: string;
+  status: string;
+}
+
 interface SeatsData {
-  [key: string]: string[];
+  [key: string]: SeatData[];
 }
 
 interface Props { }

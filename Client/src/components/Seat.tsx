@@ -1,15 +1,16 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { PiSeatLight } from 'react-icons/pi';
 
 interface SeatProps {
   state: 'available' | 'reserved' | 'purchased';
   seatLabel: string;
+  visibility?: number | false;
   onClick?: () => void;
 }
 
 class Seat extends Component<SeatProps> {
   render() {
-    const { state, seatLabel, onClick } = this.props;
+    const { state, seatLabel, onClick, visibility = false} = this.props;
 
     const isAvailable = state === 'available';
     const isReserved = state === 'reserved';
@@ -30,6 +31,10 @@ class Seat extends Component<SeatProps> {
           <PiSeatLight className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-lg" />
         </button>
         <span className="text-xs mt-1 text-gray-500">{seatLabel}</span>
+        {/* Mostrar visibilidad solo si es un número */}
+        {typeof visibility === 'number' && (
+          <span className="text-xs text-gray-400">Visibilidad: {visibility}</span>
+        )}
       </div>
     );
   }
