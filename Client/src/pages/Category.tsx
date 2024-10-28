@@ -1,69 +1,74 @@
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import ProgressBar from '../components/ProgressBar';
-import IconButton from '@mui/material/IconButton';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import SeatGrid from '../components/SeatGrid';
+import AxiosService from '../classes/AxiosService';
+import ROUTES from '../constants/routes';
 
 interface CategoryState {
   zone: string;
 }
 
-function Category() {
+// Define el tipo de los datos de disponibilidad
+interface AvailabilityData {
+  [key: string]: number;
+}
+
+export default function Category() {
+  const apiService = AxiosService.getInstance();
   const location = useLocation();
   const state = location.state as CategoryState;
   const zone = state.zone;
 
+  const [availability, setAvailability] = useState<AvailabilityData>({});
+
+  useEffect(() => {
+    const fetchAvailabilityData = async () => {
+      try {
+        // Construir la URL de la solicitud usando el endpoint y la zona
+        const url = `${ROUTES.availableSeatsByCategory}/${zone.toLowerCase()}`;
+        const response = await apiService.get(url);
+        console.log(response.data);
+
+        setAvailability(response.data as AvailabilityData); // Actualizar el estado con los datos obtenidos
+      } catch (error) {
+        console.error("Error al obtener los datos de disponibilidad", error);
+      }
+    };
+
+    fetchAvailabilityData();
+  }, [apiService, zone]);
+
+  // Calcular el porcentaje de asientos disponibles para cada categoría
+  const calculatePercentage = (availableSeats: number) => Math.round(((40 - availableSeats) / 40) * 100);
+
+
+
   return (
     <div className="h-screen flex flex-col items-center p-4">
       {/* Contenedor de zone en la parte superior */}
-      <div className="text-3xl font-bold mb-4">{zone}</div>
-  
+      <div className="text-3xl font-bold mb-4">Disponibilidad de Asientos - Zona {zone}</div>
+
       {/* Contenido principal centrado */}
       <div className="flex flex-1 w-full items-center justify-center">
+        {/* Renderizar cada categoría con porcentaje calculado */}
         <div className="flex-1 p-2">
-          <SeatGrid fillPercentage={60} zone="Category A" />
-          <ProgressBar percentage={75} />
-          <div className="flex items-center justify-between">
-            <span className="ml-2 text-lg font-semibold">Buy Seats</span>
-            <IconButton color="primary" aria-label="add to shopping cart">
-              <AddShoppingCartIcon />
-            </IconButton>
-          </div>
+          <SeatGrid fillPercentage={calculatePercentage(availability['a'] || 0)} zone={zone} category='a' />
+          <ProgressBar percentage={calculatePercentage(availability['a'] || 0)} />
         </div>
         <div className="flex-1 p-2">
-          <SeatGrid fillPercentage={45} zone="Category B" />
-          <ProgressBar percentage={50} />
-          <div className="flex items-center justify-between">
-            <span className="ml-2 text-lg font-semibold">Buy Seats</span>
-            <IconButton color="primary" aria-label="add to shopping cart">
-              <AddShoppingCartIcon />
-            </IconButton>
-          </div>
+          <SeatGrid fillPercentage={calculatePercentage(availability['b'] || 0)} zone={zone} category='b' />
+          <ProgressBar percentage={calculatePercentage(availability['b'] || 0)} />
         </div>
         <div className="flex-1 p-2">
-          <SeatGrid fillPercentage={30} zone="Category C" />
-          <ProgressBar percentage={25} />
-          <div className="flex items-center justify-between">
-            <span className="ml-2 text-lg font-semibold">Buy Seats</span>
-            <IconButton color="primary" aria-label="add to shopping cart">
-              <AddShoppingCartIcon />
-            </IconButton>
-          </div>
+          <SeatGrid fillPercentage={calculatePercentage(availability['c'] || 0)} zone={zone} category='c' />
+          <ProgressBar percentage={calculatePercentage(availability['c'] || 0)} />
         </div>
         <div className="flex-1 p-2">
-          <SeatGrid fillPercentage={90} zone="Category D" />
-          <ProgressBar percentage={85} />
-          <div className="flex items-center justify-between">
-            <span className="ml-2 text-lg font-semibold">Buy Seats</span>
-            <IconButton color="primary" aria-label="add to shopping cart">
-              <AddShoppingCartIcon />
-            </IconButton>
-          </div>
+          <SeatGrid fillPercentage={calculatePercentage(availability['d'] || 0)} zone={zone} category='d' />
+          <ProgressBar percentage={calculatePercentage(availability['d'] || 0)} />
         </div>
       </div>
     </div>
   );
-  
 }
-
-export default Category;
