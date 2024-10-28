@@ -5,13 +5,10 @@ mod priorityQueue;
 #[macro_use]
 extern crate rocket;
 
-use crate::algorithm::{
-    fill_stadium, get_available_seats_by_zone, get_best_seats_filtered_by_category,
-    modify_seats_status,
-};
+use crate::algorithm::{fill_stadium, get_available_seats_by_category, get_available_seats_by_zone, get_best_seats_filtered_by_category, get_seats_by_zone_and_category, modify_seats_status};
 
 use rocket_cors::{AllowedHeaders, AllowedOrigins, CorsOptions, Cors};
-use crate::stadium::structures::{Seat, SeatingMap, StadiumState, Zone};
+use crate::stadium::structures::{Seat, SeatingMap, StadiumState, Zone, Status as SeatStatus};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Status;
 use rocket::response::status;
@@ -196,6 +193,25 @@ async fn get_available_seats_by_zone_route(
     Json(available_seats_by_zone)
 }
 
+#[get("/available-seats-by-category/<zone_name>")]
+async fn get_available_seats_by_category_route(
+    stadium_state: &State<Arc<StadiumState>>,
+    zone_name: String,
+) -> Json<HashMap<String, usize>> {
+    // Acceder al estado del estadio y obtener el mapa de asientos
+    let stadium = stadium_state.seating_map.lock().await;
+
+    // Buscar la zona especificada
+    if let Some(zone) = stadium.get(&zone_name) {
+        // Llamar a la función para obtener los asientos disponibles por categoría
+        let available_seats_by_category = get_available_seats_by_category(zone);
+        Json(available_seats_by_category)
+    } else {
+        // Enviar una respuesta vacía si la zona no existe
+        Json(HashMap::new())
+    }
+}
+
 #[get("/")]
 fn index() -> &'static str {
     "¡Servidor Rocket en funcionamiento!"
@@ -237,11 +253,37 @@ impl Fairing for QueueProcessor {
     }
 }
 
+#[get("/seats/<zone>/<category>")]
+async fn get_seats_by_zone_and_category_route(
+    stadium_state: &rocket::State<Arc<StadiumState>>,
+    zone: String,
+    category: String, // Cambiamos a String para cumplir con FromParam
+) -> Json<HashMap<String, Vec<SeatStatus>>> {
+    // Convertir category a char después de recibirla como String
+    if let Some(category_char) = category.chars().next() {
+        // Bloquea el mapa de asientos para acceder de forma segura
+        let stadium = stadium_state.seating_map.lock().await;
+
+        // Obtiene la zona especificada del estadio
+        if let Some(zone_data) = stadium.get(&zone) {
+            // Llama a la función auxiliar para obtener los estados de los asientos
+            let rows_status = get_seats_by_zone_and_category(zone_data, &category_char);
+
+            // Devuelve los datos como JSON
+            return Json(rows_status);
+        }
+    }
+
+    // Si la zona no existe o la conversión falla, devuelve un HashMap vacío
+    Json(HashMap::new())
+}
+
+
 // Función principal para lanzar el servidor
 #[launch]
 fn rocket() -> _ {
     let mut stadium: HashMap<String, Zone> = stadium::data::generate_stadium();
-    fill_stadium(&mut stadium, 0.0); // Llena el estadio con asientos y otras propiedades
+    fill_stadium(&mut stadium, 0.6); // Llena el estadio con asientos y otras propiedades
 
     let priority_queue = PriorityQueue::<Buyer, u32>::new();
 
@@ -263,7 +305,9 @@ fn rocket() -> _ {
                 get_stadium,
                 get_seats,
                 modify_seats,
-                get_available_seats_by_zone_route
+                get_available_seats_by_zone_route,
+                get_available_seats_by_category_route,
+                get_seats_by_zone_and_category_route
             ],
         )
         .register("/", catchers![not_found])

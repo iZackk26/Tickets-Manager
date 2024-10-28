@@ -580,3 +580,46 @@ pub fn get_available_seats_by_zone(stadium: &HashMap<String, Zone>) -> HashMap<S
 
     available_seats_by_zone
 }
+
+pub fn get_available_seats_by_category(zone: &Zone) -> HashMap<String, usize> {
+    let mut available_seats_by_category: HashMap<String, usize> = HashMap::new();
+
+    for (category_key, category) in &zone.categories {
+        let mut category_available_seats = 0;
+
+        for (_row_key, row) in &category.rows {
+            for (_seat_number, seat) in &row.seats {
+                if seat.status == Status::Available {
+                    category_available_seats += 1;
+                }
+            }
+        }
+
+        available_seats_by_category.insert(category_key.to_string(), category_available_seats);
+    }
+
+    available_seats_by_category
+}
+pub fn get_seats_by_zone_and_category(zone: &Zone, category: &char) -> HashMap<String, Vec<Status>> {
+    let mut rows_status: HashMap<String, Vec<Status>> = HashMap::new();
+
+    if let Some(category_data) = zone.categories.get(category) {
+        for (row_key, row_data) in &category_data.rows {
+            // Recopila el estado de cada asiento en la fila, si el asiento está en `None`, usa `Status::Available` por defecto
+            let row_status: Vec<Status> = row_data
+                .seats
+                .values()
+                .map(|seat| match seat.status {
+                    Status::Available => Status::Available,
+                    Status::Reserved => Status::Reserved,
+                    Status::Purchased => Status::Purchased,
+                })
+                .collect();
+
+            rows_status.insert(row_key.to_string(), row_status);
+        }
+    }
+
+    rows_status // Devuelve el estado de los asientos por fila
+}
+
