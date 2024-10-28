@@ -11,7 +11,7 @@ function MasterCard() {
   const [cvv, setCvv] = useState("");
 
   return (
-    <div className="w-96 h-56 bg-white text-black rounded-xl overflow-hidden relative shadow-lg">
+    <div className="w-96 h-56 text-black rounded-xl overflow-hidden relative shadow-lg bg-cover bg-center" style={{ backgroundImage: "url('src/assets/Mastercard-Background.jpg')" }}>
       <div className="p-6 flex flex-col justify-between h-full">
         <div className="flex justify-between items-start">
           <LuNfc className="w-6 h-6 text-gray-500" />
@@ -43,7 +43,7 @@ function MasterCard() {
                 value={cardHolderName}
                 onChange={(e) => setCardHolderName(e.target.value)}
                 placeholder="John Doe"
-                className="bg-transparent border-none font-medium text-black focus:outline-none w-full text-sm"
+                className="bg-transparent border-none text-lg text-black focus:outline-none w-full font-medium"
               />
             </div>
             <div>
@@ -85,6 +85,6 @@ function MasterCard() {
       </div>
     </div>
   );
-}
+} 
 
 export default MasterCard;

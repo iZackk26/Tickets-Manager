@@ -42,6 +42,7 @@ class SeatsView extends BaseComponent<Props, State> {
       const response = await AxiosService.getInstance().get(
         `${ROUTES.getSeatsByZoneAndCategory}/${zone}/${category}`
       );
+      console.log('Datos de asientos cargados', response.data); 
       this.setState({ seatsData: response.data as SeatsData });
     } catch (error) {
       console.error('Error al cargar los datos de asientos', error);
