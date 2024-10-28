@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Category from './pages/Category';
 import SeatsView from './pages/SeatsView';
-import { BreadcrumbsWrapper } from './components/BreadcrumbsWrapper';
+import BreadcrumbsWrapper from './components/BreadcrumbsWrapper';
 
 class App extends Component {
   render() {
