@@ -32,7 +32,7 @@ function Stadium() {
           cursor: "pointer"
         }
       }}
-      height={400}
+      height={300}
     />
   );
 }

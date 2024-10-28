@@ -6,12 +6,14 @@ import Category from './pages/Category';
 class App extends Component {
   render() {
     return (
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/category" element={<Category />} />
-        </Routes>
-      </BrowserRouter>
+      <div className="flex items-center justify-center w-screen">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/category" element={<Category />} />
+          </Routes>
+        </BrowserRouter>
+      </div>
     );
   }
 }
