@@ -2,12 +2,14 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import stadiumZones from './webUsageStats';
 import { useNavigate } from 'react-router-dom';
 
-export default function PieActiveArc() {
+function Stadium() {
   const navigate = useNavigate();
+
   const handleArcClick = (event: any) => {
     const zoneIndex = Array.from(event.target.parentNode.children).indexOf(event.target);
     const zone = stadiumZones[zoneIndex];
     console.log(zone.label.toLowerCase());
+    navigate("/category", { state: { zone: zone.label } });
   };
 
   return (
@@ -34,3 +36,5 @@ export default function PieActiveArc() {
     />
   );
 }
+
+export default Stadium;
