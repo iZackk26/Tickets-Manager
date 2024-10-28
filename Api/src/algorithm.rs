@@ -532,17 +532,10 @@ pub fn get_best_seats_filtered_by_category(
         return all_candidates;
     }
 
-    println!("four");
-
     let all_candidates_copy = all_candidates.clone();
     let worst_candidate = get_worst_candidate(all_candidates_copy);
 
     let mut new_candidates: Vec<Vec<Seat>> = Vec::new();
-
-    println!(
-        "WORST----------------{:?}-------------------------",
-        worst_candidate
-    );
 
     for candidate in all_candidates {
         if !are_candidates_equal(&candidate, &worst_candidate) {
@@ -552,6 +545,7 @@ pub fn get_best_seats_filtered_by_category(
 
     let new_candidates_copy = new_candidates.clone();
     for candidate in new_candidates_copy {
+        println!("{:?}", candidate);
         modify_seats_status(stadium, candidate, Status::Reserved);
     }
 
@@ -600,26 +594,18 @@ pub fn get_available_seats_by_category(zone: &Zone) -> HashMap<String, usize> {
 
     available_seats_by_category
 }
-pub fn get_seats_by_zone_and_category(zone: &Zone, category: &char) -> HashMap<String, Vec<Status>> {
-    let mut rows_status: HashMap<String, Vec<Status>> = HashMap::new();
 
-    if let Some(category_data) = zone.categories.get(category) {
-        for (row_key, row_data) in &category_data.rows {
-            // Recopila el estado de cada asiento en la fila, si el asiento está en `None`, usa `Status::Available` por defecto
-            let row_status: Vec<Status> = row_data
-                .seats
-                .values()
-                .map(|seat| match seat.status {
-                    Status::Available => Status::Available,
-                    Status::Reserved => Status::Reserved,
-                    Status::Purchased => Status::Purchased,
-                })
-                .collect();
+pub fn get_seats_by_zone_and_category(category: &Category) -> Vec<Vec<Seat>> {
+    let mut rows_seats = Vec::new();
 
-            rows_status.insert(row_key.to_string(), row_status);
-        }
+    // Iterar sobre cada fila en la categoría
+    for row in category.rows.values() {
+        // Recopilar todos los asientos en una fila y convertirlos en un vector
+        let mut seats_in_row: Vec<Seat> = row.seats.values().cloned().collect();
+        seats_in_row.sort_by_key(|seat| seat.number); // Ordenar por número de asiento
+        rows_seats.push(seats_in_row);
+        // Añadir el vector de asientos de esta fila al resultado
     }
 
-    rows_status // Devuelve el estado de los asientos por fila
+    rows_seats
 }
-

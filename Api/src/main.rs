@@ -81,6 +81,8 @@ async fn process_priority_queue(app_state: Arc<AppState>, stadium_state: Arc<Sta
                     &buyer_data.category,
                     buyer_data.seats as u8,
                 );
+                let mut best_seats_lock = buyer_data.best_seats.lock().await;
+                *best_seats_lock = Some(best_seats);
 
                 // Notificar al comprador que su solicitud fue procesada
                 buyer_data.notify.notify_one();
@@ -126,20 +128,21 @@ async fn get_seats(
         return Err(Status::BadRequest);
     }
 
-    // Intentamos convertir el String `category` a un `char`
     let category_char = category.chars().next().ok_or(Status::BadRequest)?;
 
     let notify = Arc::new(Notify::new());
+    let best_seats = Arc::new(Mutex::new(None)); // Crear el campo `best_seats` inicialmente vacío
+
     let buyer = Buyer {
         buyer_id: "some_unique_id".to_string(),
         seats: quantity,
         category: category_char,
         notify: notify.clone(),
+        best_seats: best_seats.clone(), // Pasa `best_seats` al comprador
     };
 
     let priority = quantity;
 
-    // Añadir el comprador a la cola de prioridad
     {
         let mut queue_guard = app_state.priority_queue.lock().await;
         queue_guard.send_nostash(buyer, priority);
@@ -148,15 +151,15 @@ async fn get_seats(
     // Esperar a que la solicitud del cliente sea procesada
     notify.notified().await;
 
-    // Una vez notificado, procesar la solicitud
-    let mut stadium = stadium_state.seating_map.lock().await;
-
-    // Obtener los mejores asientos una vez que la solicitud es procesada
-    let best_seats =
-        get_best_seats_filtered_by_category(&mut stadium, &category_char, quantity as u8);
-
-    Ok(Json(best_seats))
+    // Leer el valor de `best_seats` después de la notificación
+    let best_seats_lock = best_seats.lock().await;
+    if let Some(ref best_seats) = *best_seats_lock {
+        Ok(Json(best_seats.clone()))
+    } else {
+        Err(Status::InternalServerError)
+    }
 }
+
 
 #[post("/modify-seats", format = "json", data = "<seats>")]
 async fn modify_seats(
@@ -258,32 +261,36 @@ impl Fairing for QueueProcessor {
 async fn get_seats_by_zone_and_category_route(
     stadium_state: &rocket::State<Arc<StadiumState>>,
     zone: String,
-    category: String, // Cambiamos a String para cumplir con FromParam
-) -> Json<HashMap<String, Vec<SeatStatus>>> {
-    // Convertir category a char después de recibirla como String
+    category: String,
+) -> Json<Vec<Vec<Seat>>> {
+    // Convertir `category` a `char`
     if let Some(category_char) = category.chars().next() {
         // Bloquea el mapa de asientos para acceder de forma segura
         let stadium = stadium_state.seating_map.lock().await;
 
         // Obtiene la zona especificada del estadio
         if let Some(zone_data) = stadium.get(&zone) {
-            // Llama a la función auxiliar para obtener los estados de los asientos
-            let rows_status = get_seats_by_zone_and_category(zone_data, &category_char);
+            // Obtiene la categoría especificada dentro de la zona
+            if let Some(category_data) = zone_data.categories.get(&category_char) {
+                // Llama a `get_seats_by_row` para obtener los asientos organizados por filas
+                let rows_seats = get_seats_by_zone_and_category(category_data);
 
-            // Devuelve los datos como JSON
-            return Json(rows_status);
+                // Devuelve los datos como JSON
+                return Json(rows_seats);
+            }
         }
     }
 
-    // Si la zona no existe o la conversión falla, devuelve un HashMap vacío
-    Json(HashMap::new())
+    // Si la zona o categoría no existe o la conversión falla, devuelve un vector vacío
+    Json(Vec::new())
 }
+
 
 // Función principal para lanzar el servidor
 #[launch]
 fn rocket() -> _ {
     let mut stadium: HashMap<String, Zone> = stadium::data::generate_stadium();
-    fill_stadium(&mut stadium, 0.6); // Llena el estadio con asientos y otras propiedades
+    fill_stadium(&mut stadium, 0.4); // Llena el estadio con asientos y otras propiedades
 
     let priority_queue = PriorityQueue::<Buyer, u32>::new();
 
