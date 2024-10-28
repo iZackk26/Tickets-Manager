@@ -5,10 +5,12 @@ import { useNavigate } from 'react-router-dom';
 function Stadium() {
   const navigate = useNavigate();
 
-  const handleArcClick = (event: any) => {
-    const zoneIndex = Array.from(event.target.parentNode.children).indexOf(event.target);
+  const handleArcClick = (event: React.MouseEvent<SVGElement>) => {
+    // Obtener el índice del arco clickeado
+    const zoneIndex = Array.from(event.currentTarget.parentNode!.children).indexOf(event.currentTarget);
     const zone = stadiumZones[zoneIndex];
-    console.log(zone.label.toLowerCase());
+
+    // Navegar a /category pasando el estado de la zona seleccionada
     navigate("/category", { state: { zone: zone.label } });
   };
 
@@ -23,13 +25,12 @@ function Stadium() {
           faded: { innerRadius: 0, additionalRadius: -30, color: 'gray' },
           arcLabel: 'label',
         },
-
       ]}
       slotProps={{
         legend: { hidden: true },
         pieArc: {
           onClick: handleArcClick,
-          cursor: "pointer"
+          cursor: "pointer",
         }
       }}
       height={300}

@@ -5,7 +5,7 @@ type BaseComponentProps = {
   children?: ReactNode;
 };
 
-class BaseComponent extends Component<BaseComponentProps> {
+class BaseComponent<P = {}, S = {}> extends Component<BaseComponentProps & P, S> {
   componentDidMount() {
     if (this.props.onMount) {
       this.props.onMount();
