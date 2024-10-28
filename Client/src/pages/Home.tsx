@@ -8,6 +8,7 @@ import { FaCalendarAlt } from "react-icons/fa";
 import { LuMapPin } from "react-icons/lu";
 import { MdPeople } from "react-icons/md";
 import { CiCircleAlert } from "react-icons/ci";
+import { Link } from 'react-router-dom';
 
 class Home extends BaseComponent {
   private apiService: AxiosService;
@@ -53,7 +54,7 @@ class Home extends BaseComponent {
                 sports, or theater performances, Ticket Manager simplifies the entire process,
                 so you can enjoy a quick, hassle-free experience.
               </p>
-              <Button text="Start Booking" onClick={this.handleBookClick} />
+              <Link className='bg-black text-white p-3 rounded-lg' to={"/booking"}>Start booking</Link>
             </div>
           </div>
           <div className="flex flex-col items-start justify-center w-full border-gray-300 border-2 rounded-lg p-10">
