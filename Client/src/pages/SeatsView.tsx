@@ -11,7 +11,7 @@ interface SeatsData {
 interface Props { }
 
 interface State {
-  seatsData: SeatsData;
+  seatsData: SeatsData[][];
   zone: string;
   category: string;
 }
@@ -26,7 +26,7 @@ class SeatsView extends BaseComponent<Props, State> {
     const category = pathSegments[3] || "defaultCategory";
 
     this.state = {
-      seatsData: {},
+      seatsData: [],
       zone,
       category,
     };
@@ -43,7 +43,7 @@ class SeatsView extends BaseComponent<Props, State> {
         `${ROUTES.getSeatsByZoneAndCategory}/${zone}/${category}`
       );
       console.log('Datos de asientos cargados', response.data); 
-      this.setState({ seatsData: response.data as SeatsData });
+      this.setState({ seatsData: response.data as SeatsData[][] });
     } catch (error) {
       console.error('Error al cargar los datos de asientos', error);
     }
@@ -62,15 +62,15 @@ class SeatsView extends BaseComponent<Props, State> {
             Disponibilidad de Asientos
           </h1>
           <div>
-            {this.rowsOrder.map((rowKey) => (
-              <div key={rowKey} className="mb-4">
+            {seatsData.map((row, rowIndex) => (
+              <div key={rowIndex} className="mb-4">
                 <div className="flex justify-center space-x-2">
-                  {seatsData[rowKey]?.map((status, seatIndex) => (
+                  {row.map((seat, seatIndex) => (
                     <Seat
                       key={seatIndex}
-                      state={status.toLowerCase() as 'available' | 'reserved' | 'purchased'}
-                      seatLabel={`${rowKey}:${seatIndex + 1}`} // Etiqueta personalizada
-                      onClick={() => console.log(`Asiento ${rowKey}:${seatIndex + 1} clickeado`)}
+                      state={seat.status.toLowerCase() as "available" | "reserved" | "purchased"}
+                      seatLabel={`${seat.row}-${seat.number}`} // Etiqueta personalizada
+                      onClick={() => console.log(`Asiento ${seat.row}-${seat.number} clickeado`)}
                     />
                   ))}
                 </div>
