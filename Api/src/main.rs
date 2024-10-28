@@ -115,25 +115,29 @@ async fn get_stadium(
 }
 
 // Ruta para manejar solicitudes GET con datos JSON
-#[rocket::get("/get-seats", format = "json", data = "<data>")]
+#[rocket::get("/get-seats/<category>/<quantity>", format = "json")]
 async fn get_seats(
-    data: Json<Asiento>,
+    category: String,
+    quantity: u32,
     stadium_state: &State<Arc<StadiumState>>,
     app_state: &State<Arc<AppState>>,
 ) -> Result<Json<Vec<Vec<Seat>>>, Status> {
-    if data.cantidad <= 0 {
+    if quantity <= 0 {
         return Err(Status::BadRequest);
     }
+
+    // Intentamos convertir el String `category` a un `char`
+    let category_char = category.chars().next().ok_or(Status::BadRequest)?;
 
     let notify = Arc::new(Notify::new());
     let buyer = Buyer {
         buyer_id: "some_unique_id".to_string(),
-        seats: data.cantidad,
-        category: data.categoria,
+        seats: quantity,
+        category: category_char,
         notify: notify.clone(),
     };
 
-    let priority = data.cantidad;
+    let priority = quantity;
 
     // Añadir el comprador a la cola de prioridad
     {
@@ -150,12 +154,13 @@ async fn get_seats(
     // Obtener los mejores asientos una vez que la solicitud es procesada
     let best_seats = get_best_seats_filtered_by_category(
         &mut stadium,
-        &data.categoria,
-        data.cantidad as u8,
+        &category_char,
+        quantity as u8,
     );
 
     Ok(Json(best_seats))
 }
+
 
 #[post("/modify-seats", format = "json", data = "<seats>")]
 async fn modify_seats(
