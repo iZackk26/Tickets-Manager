@@ -1,11 +1,11 @@
-import MasterCard from "../plugins/MasterCard"
+import DinamicPluginLoader from "../DinamicPluginLoader"
 
 export default function Card() {
-    return (
-        <>
-            <div>
-                <MasterCard cardNumber={123455123} cardHolderName="Isaac Ramirez" validationDate="10/23" expirationDate="10/28" cvv={222}/>
-            </div>
-        </>
-    )
+  return (
+    <>
+      <div className="space-y-5">
+        <DinamicPluginLoader />
+      </div>
+    </>
+  )
 }

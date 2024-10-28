@@ -1,17 +1,17 @@
 import CreditCard from "../classes/CreditCard";
 
-class MasterCard extends CreditCard {
+class Visa extends CreditCard {
   protected getCardBackground(): string {
-    return "url('src/assets/Mastercard-Background.jpg')";
+    return "url('src/assets/Visa-Background.png')";
   }
 
   protected getCardLogo(): string {
-    return "src/assets/Mastercard-Logo.png";
+    return "src/assets/Visa.png";
   }
 
   render() {
     return (
-      <div className="w-96 h-56 text-white rounded-xl overflow-hidden relative shadow-lg bg-cover bg-center" style={{ backgroundImage: this.getCardBackground() }}>
+      <div className="w-96 h-56 text-black rounded-xl overflow-hidden relative shadow-lg bg-cover bg-center" style={{ backgroundImage: this.getCardBackground() }}>
         <div className="p-6 flex flex-col justify-between h-full">
           {this.renderInputs()}
           {this.renderCardLogo()}
@@ -29,4 +29,4 @@ class MasterCard extends CreditCard {
   }
 }
 
-export default MasterCard;
+export default Visa;
