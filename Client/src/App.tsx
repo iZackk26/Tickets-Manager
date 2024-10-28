@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Category from './pages/Category';
 import SeatsView from './pages/SeatsView';
 import BreadcrumbsWrapper from './components/BreadcrumbsWrapper';
+import SeatBooking from './pages/SeatBooking';
 
 class App extends Component {
   render() {
@@ -16,6 +17,7 @@ class App extends Component {
               <Route path="/" element={<Home />} />
               <Route path="/category" element={<Category />} />
               <Route path="/seats/:zone/:category" element={<SeatsView />} />
+              <Route path="/booking" element={<SeatBooking />} />
             </Routes>
           </div>
         </BrowserRouter>
