@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import Dropdown, { Option } from "react-dropdown";
-import 'react-dropdown/style.css';
 import SeatType from "../types/Seat";
 import AxiosService from "../classes/AxiosService";
 import ROUTES from "../constants/routes";
@@ -47,6 +46,14 @@ class SeatBooking extends Component<{}, SeatBookingState> {
     } catch (error) {
       console.error("Error al cargar los datos de asientos", error);
     }
+  };
+
+  handleSeatGroupClick = (selectedSeats: SeatType[]) => {
+    // Almacena los asientos seleccionados en sessionStorage
+    sessionStorage.setItem('selectedSeats', JSON.stringify(selectedSeats));
+  
+    // Navega a la página de pago
+    window.location.href = '/payment';
   };
 
   render() {
@@ -96,22 +103,25 @@ class SeatBooking extends Component<{}, SeatBookingState> {
             {seats.map((row, index) => {
               const solutionPrice = (row.reduce((acc, seat) => acc + (seat.visibility / 100 * seatPrice), 0) * 100).toFixed(2);
               return (
-                <div key={index} className="flex flex-col items-start border rounded-lg shadow-md p-2">
+                <button
+                  key={index}
+                  className="flex flex-col items-start border rounded-lg shadow-md p-2"
+                  onClick={() => this.handleSeatGroupClick(row)}
+                >
                   <div className="flex flex-row items-center space-x-2">
                     {row.map((seat) => (
                       <Seat
                         key={`${seat.row}-${seat.number}`}
                         state={seat.status.toLowerCase() as "available" | "reserved" | "purchased"}
                         seatLabel={`${seat.row}-${seat.number}`}
-                        visibility={seat.visibility} // Pasar la visibilidad si está disponible
+                        visibility={seat.visibility}
                       />
                     ))}
                   </div>
                   <div className="flex justify-center w-full text-center text-sm font-semibold mt-2">
                     Solution Price: ${solutionPrice}
                   </div>
-
-                </div>
+                </button>
               );
             })}
           </div>
