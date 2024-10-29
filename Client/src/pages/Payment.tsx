@@ -1,8 +1,10 @@
 import DinamicPluginLoader from "../DinamicPluginLoader"
 import SeatType from "../types/Seat";
 import BaseComponent from "../classes/BaseComponent";
+import AxiosService from "../classes/AxiosService";
+import ROUTES from "../constants/routes";
 
-interface Props {}
+interface Props { }
 
 interface State {
   seats: SeatType[];
@@ -11,25 +13,31 @@ interface State {
 class Payment extends BaseComponent<Props, State> {
   constructor(props: Props) {
     super(props);
-    // Recupera los asientos seleccionados desde sessionStorage
     const seats = JSON.parse(sessionStorage.getItem('selectedSeats') || '[]');
     this.state = {
       seats: seats,
     };
   }
 
+  handlePayClick = () => {
+    const data {
+
+    }
+
+
+    const response = await AxiosService.getInstance().post(
+      ROUTES.modifySeats,
+  }
+
   render() {
     return (
       <>
-        <div className="space-y-5 w-1/2">
+        <div className="flex flex-col items-center justify-center space-y-5 w-1/2">
           <DinamicPluginLoader />
-          {/* Ahora puedes utilizar this.state.seats */}
-          {/* Por ejemplo, mostrar los asientos seleccionados */}
-          {this.state.seats.map((seat) => (
-            <div key={`${seat.row}-${seat.number}`}>
-              Asiento: {seat.row}-{seat.number}, Visibilidad: {seat.visibility}
-            </div>
-          ))}
+          <button className="bg-black text-white py-3 px-10 rounded-lg mt-4"
+            onClick={this.handlePayClick}>
+            Pay
+          </button>
         </div>
       </>
     );

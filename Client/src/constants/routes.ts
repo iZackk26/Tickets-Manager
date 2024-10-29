@@ -5,7 +5,8 @@ const ROUTES = {
   getSeats: "/get-seats",
   availableSeats: "/available-seats-by-zone",
   availableSeatsByCategory: "/available-seats-by-category",
-  getSeatsByZoneAndCategory: "/seats"
+  getSeatsByZoneAndCategory: "/seats",
+  modifySeats: "/modify-seats"
 }
 
 export default ROUTES;
