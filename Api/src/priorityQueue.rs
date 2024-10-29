@@ -3,6 +3,7 @@ use mpmcpq::Stash;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use rocket::tokio::sync::Notify;
+use crate::stadium::structures::Seat;
 
 #[derive(Debug)]
 pub struct Buyer {
@@ -10,6 +11,7 @@ pub struct Buyer {
     pub seats: u32,
     pub category: char,
     pub notify: Arc<Notify>,
+    pub best_seats: Arc<Mutex<Option<Vec<Vec<Seat>>>>>
 }
 
 // Estructura que se usará como prioridad en la cola (cuantos más asientos, mayor prioridad)
