@@ -62,7 +62,7 @@ abstract class CreditCard extends Component<{}, CreditCardState> {
         <div className="flex justify-between items-start">
           <LuNfc className="w-6 h-6 text-gray-500" />
           <div className="text-right">
-            <p className="text-xs text-gray-500">Expires</p>
+            <p className="text-xs text-gray-700">Expires</p>
             <input
               type="text"
               value={this.state.expirationDate}

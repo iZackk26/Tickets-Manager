@@ -11,7 +11,7 @@ class Amex extends CreditCard {
 
   render() {
     return (
-      <div className="w-96 h-56 text-black rounded-xl overflow-hidden relative shadow-lg bg-cover bg-center" style={{ backgroundImage: this.getCardBackground() }}>
+      <div className="w-96 h-56 text-white rounded-xl overflow-hidden relative shadow-lg bg-cover bg-center" style={{ backgroundImage: this.getCardBackground() }}>
         <div className="p-6 flex flex-col justify-between h-full">
           {this.renderInputs()}
           {this.renderCardLogo()}

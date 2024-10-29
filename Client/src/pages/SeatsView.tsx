@@ -1,4 +1,3 @@
-import React from 'react';
 import Seat from '../components/Seat';
 import AxiosService from '../classes/AxiosService';
 import ROUTES from '../constants/routes';
@@ -48,7 +47,7 @@ class SeatsView extends BaseComponent<Props, State> {
       const response = await AxiosService.getInstance().get(
         `${ROUTES.getSeatsByZoneAndCategory}/${zone}/${category}`
       );
-      console.log('Datos de asientos cargados', response.data); 
+      console.log('Datos de asientos cargados', response.data);
       this.setState({ seatsData: response.data as SeatsData[][] });
     } catch (error) {
       console.error('Error al cargar los datos de asientos', error);

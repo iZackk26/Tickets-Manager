@@ -47,7 +47,7 @@ interface CarouselCustomNavigationProps {
 function CarouselCustomNavigation({ plugins }: CarouselCustomNavigationProps) {
   return (
     <Carousel
-      className="rounded-xl"
+      className="rounded-xl bg-gray-900 py-8"
       navigation={({ setActiveIndex, activeIndex, length }) => (
         <div className="absolute bottom-4 left-2/4 z-50 flex -translate-x-2/4 gap-2">
           {new Array(length).fill("").map((_, i) => (
