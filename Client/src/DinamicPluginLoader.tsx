@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import CreditCard from './classes/CreditCard';
+import { Carousel } from "@material-tailwind/react";
 
 export default function DinamicPluginLoader() {
   const [plugins, setPlugins] = useState<React.ComponentType[]>([]); // Almacena componentes, no objetos.
@@ -35,12 +36,36 @@ export default function DinamicPluginLoader() {
   }, []);
 
   return (
-    <div>
+    <CarouselCustomNavigation plugins={plugins} />
+  );
+}
+
+interface CarouselCustomNavigationProps {
+  plugins: React.ComponentType[];
+}
+
+function CarouselCustomNavigation({ plugins }: CarouselCustomNavigationProps) {
+  return (
+    <Carousel
+      className="rounded-xl"
+      navigation={({ setActiveIndex, activeIndex, length }) => (
+        <div className="absolute bottom-4 left-2/4 z-50 flex -translate-x-2/4 gap-2">
+          {new Array(length).fill("").map((_, i) => (
+            <span
+              key={i}
+              className={`block h-1 cursor-pointer rounded-2xl transition-all content-[''] ${activeIndex === i ? "w-8 bg-white" : "w-4 bg-white/50"
+                }`}
+              onClick={() => setActiveIndex(i)}
+            />
+          ))}
+        </div>
+      )}
+    >
       {plugins.map((PluginComponent, index) => (
-        <div key={index} className='space-y-20'>
-          <PluginComponent /> {/* Pasar props, si es necesario */}
+        <div key={index} className="h-full w-full flex justify-center items-center">
+          <PluginComponent /> {/* Renderizar cada tarjeta */}
         </div>
       ))}
-    </div>
+    </Carousel>
   );
 }
