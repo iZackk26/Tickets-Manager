@@ -4,7 +4,7 @@ import BaseComponent from "../classes/BaseComponent";
 import AxiosService from "../classes/AxiosService";
 import ROUTES from "../constants/routes";
 
-interface Props {}
+interface Props { }
 
 interface State {
   seats: SeatType[];
@@ -20,18 +20,24 @@ class Payment extends BaseComponent<Props, State> {
   }
 
   handlePayClick = async () => {
-    try {
-      // Los datos que quieres enviar al backend
-      const data = this.state.seats;
+    const isRejected = Math.random() > 0.5;
 
-      // Realizar la solicitud POST al backend
+    if (isRejected) {
+      alert("Pago rechazado");
+      return;
+    }
+
+    try {
+      const data = this.state.seats;
       const response = await AxiosService.getInstance().post(
         ROUTES.modifySeats,
         data
       );
 
-      // Puedes manejar la respuesta según lo que devuelva el backend
       console.log("Respuesta del backend:", response.data);
+      alert("Pago aceptado");
+
+      window.location.href = "/";
     } catch (error) {
       console.error("Error al modificar los asientos:", error);
     }
