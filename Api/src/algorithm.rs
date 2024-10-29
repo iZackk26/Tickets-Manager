@@ -532,17 +532,10 @@ pub fn get_best_seats_filtered_by_category(
         return all_candidates;
     }
 
-    println!("four");
-
     let all_candidates_copy = all_candidates.clone();
     let worst_candidate = get_worst_candidate(all_candidates_copy);
 
     let mut new_candidates: Vec<Vec<Seat>> = Vec::new();
-
-    println!(
-        "WORST----------------{:?}-------------------------",
-        worst_candidate
-    );
 
     for candidate in all_candidates {
         if !are_candidates_equal(&candidate, &worst_candidate) {
@@ -552,6 +545,7 @@ pub fn get_best_seats_filtered_by_category(
 
     let new_candidates_copy = new_candidates.clone();
     for candidate in new_candidates_copy {
+        println!("{:?}", candidate);
         modify_seats_status(stadium, candidate, Status::Reserved);
     }
 
@@ -600,7 +594,10 @@ pub fn get_available_seats_by_category(zone: &Zone) -> HashMap<String, usize> {
 
     available_seats_by_category
 }
-pub fn get_seats_by_zone_and_category(zone: &Zone, category: &char) -> HashMap<String, Vec<Status>> {
+pub fn get_seats_by_zone_and_category(
+    zone: &Zone,
+    category: &char,
+) -> HashMap<String, Vec<Status>> {
     let mut rows_status: HashMap<String, Vec<Status>> = HashMap::new();
 
     if let Some(category_data) = zone.categories.get(category) {
@@ -622,4 +619,3 @@ pub fn get_seats_by_zone_and_category(zone: &Zone, category: &char) -> HashMap<S
 
     rows_status // Devuelve el estado de los asientos por fila
 }
-
